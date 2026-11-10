@@ -35,18 +35,6 @@ def get_user_location():
         pass
     return 52.5785, -0.1285, "Peterborough"
 
-def search_geocoding(query):
-    try:
-        url = f"https://geocoding-api.open-meteo.com/v1/search?name={query}&count=1"
-        res = requests.get(url, timeout=3)
-        data = res.json()
-        if "results" in data and len(data["results"]) > 0:
-            r = data["results"][0]
-            return r["latitude"], r["longitude"], r.get("name", query)
-    except Exception:
-        pass
-    return None, None, None
-
 # Resolve active coordinates
 if st.session_state.manual_lat is not None:
     lat, lon, city_name = st.session_state.manual_lat, st.session_state.manual_lon, st.session_state.manual_city
@@ -449,14 +437,23 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
     with col_a:
         if st.button("Set Location", use_container_width=True):
             if loc_query:
-                f_lat, f_lon, f_city = search_geocoding(loc_query)
-                if f_lat:
-                    st.session_state.manual_lat = f_lat
-                    st.session_state.manual_lon = f_lon
-                    st.session_state.manual_city = f_city
-                    st.rerun()
-                else:
-                    st.error("Location not found.")
+                try:
+                    url = f"https://geocoding-api.open-meteo.com/v1/search?name={loc_query}&count=1"
+                    res = requests.get(url, timeout=3)
+                    data = res.json()
+                    if "results" in data and len(data["results"]) > 0:
+                        r = data["results"][0]
+                        country = r.get("country", "")
+                        resolved_name = f"{r.get('name', loc_query)}, {country}" if country else r.get('name', loc_query)
+                        
+                        st.session_state.manual_lat = r["latitude"]
+                        st.session_state.manual_lon = r["longitude"]
+                        st.session_state.manual_city = resolved_name
+                        st.rerun()
+                    else:
+                        st.error("Location not found.")
+                except Exception:
+                    st.error("Search failed. Try again.")
     with col_b:
         if st.session_state.manual_lat is not None:
             if st.button("Reset to Auto-IP", use_container_width=True):
@@ -464,6 +461,9 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
                 st.session_state.manual_lon = None
                 st.session_state.manual_city = None
                 st.rerun()
+
+    if st.session_state.manual_lat is not None:
+        st.success(f"Active location: **{st.session_state.manual_city}**")
 
     st.markdown(
         """
