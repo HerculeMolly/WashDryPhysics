@@ -170,6 +170,7 @@ st.markdown(
         display: flex;
         flex-direction: column;
         line-height: 1.15;
+        text-align: right;
     }}
     .brand-name {{
         text-decoration: none;
@@ -437,16 +438,16 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Hercule Molly bottom-left)
+# 7. Footer Branding (Buy Coffee on left, Hercule Molly woodcraft on right)
 st.markdown(
     """
     <div class="footer-container">
+        <div>
+            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size: 0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
+        </div>
         <div class="brand-text">
             <a href="https://herculemolly.co.uk" target="_blank" class="brand-name">Hercule Molly</a>
             <span class="brand-sub">Quality Woodcraft Gifts</span>
-        </div>
-        <div>
-            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size: 0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
         </div>
     </div>
 """,
