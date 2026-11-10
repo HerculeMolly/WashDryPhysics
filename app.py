@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Increased rating text size)
+# 3. Optimized Screen Layout & CSS (Increased text size after rating score)
 st.markdown(
     f"""
     <style>
@@ -109,6 +109,10 @@ st.markdown(
     .rating-score {{
         font-size: 1.0rem;
         font-weight: 900;
+    }}
+    .rating-text {{
+        font-size: 0.88rem;
+        font-weight: 700;
     }}
     .rating-expired {{
         background-color: rgba(108, 117, 125, 0.2);
@@ -197,6 +201,7 @@ st.markdown(
         .slot-title {{ font-size: 0.95rem !important; }}
         .rating-badge {{ font-size: 0.78rem !important; padding: 3px 7px; }}
         .rating-score {{ font-size: 1.1rem !important; }}
+        .rating-text {{ font-size: 0.98rem !important; }}
         .metric-label {{ font-size: 0.68rem !important; }}
         .metric-val {{ font-size: 0.96rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
@@ -386,7 +391,7 @@ for target_dt, block_label, block_hours in target_blocks:
         score = get_hybrid_drying_score(evap_rate, eval_rain, max_hourly_mm, eval_hum)
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
-        badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
+        badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> <span class="rating-text">{label_text}</span></div>'
         physics_html = f'<div class="physics-row"><span>⚡ {fabric_label_tag}: <strong>{est_time_str}</strong></span><span style="opacity: 0.7;">VPD: {vpd:.2f} kPa</span></div>'
 
     rain_color = (
