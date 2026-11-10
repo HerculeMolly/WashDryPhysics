@@ -42,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Centered pill buttons with zero bottom margin)
+# 3. Optimized Screen Layout & CSS (Perfect horizontal centering for the radio group)
 st.markdown(
     f"""
     <style>
@@ -57,14 +57,23 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Centered pill buttons with minimal spacing */
+    /* Force absolute horizontal centering on the radio wrapper */
     .stRadio {{
+        display: flex;
+        justify-content: center;
         margin-bottom: -15px !important;
+    }}
+    .stRadio > div {{
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }}
     .stRadio div[role="radiogroup"] {{
         display: flex;
         justify-content: center;
+        align-items: center;
         gap: 8px;
+        margin: 0 auto !important;
         margin-bottom: 0px !important;
     }}
     .stRadio div[role="radiogroup"] label {{
@@ -408,11 +417,11 @@ for target_dt, block_label, block_hours in target_blocks:
         rain_val_html = f"{max_rain_prob}%"
 
     st.markdown(
-        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
+        f"""<div class="{card_card_class if 'card_class' in locals() else card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
 
-# 5. Fabric Pill Buttons (Centered, minimal gap to guide)
+# 5. Fabric Pill Buttons (Strictly centered horizontally)
 st.radio(
     "Load Type",
     ["Light", "Normal", "Heavy"],
