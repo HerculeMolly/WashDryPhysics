@@ -228,7 +228,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry, marginally larger timestamp pulled closer, and Location on the same line
+# 4. Header Row: WashDry, Timestamp, and Location on the same line
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
@@ -458,7 +458,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding
+# 7. Footer Branding (Using your actual loaded base64 logo if present)
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
