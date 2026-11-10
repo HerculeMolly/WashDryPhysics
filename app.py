@@ -22,8 +22,11 @@ if logo_path.exists():
 
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
-# Removed the word 'updated' and formatted cleanly
 update_str = now.strftime("%H%M %a %d-%b-%y").lower()
+
+# Initialize session state for fabric mode so buttons can live at the bottom
+if "fabric_mode" not in st.session_state:
+    st.session_state.fabric_mode = "Normal"
 
 # 2. Automatic IP Geolocation (Real-time lookup)
 @st.cache_data(ttl=3600)
@@ -40,7 +43,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Narrower pill buttons, hidden checkboxes, matched line height)
+# 3. Optimized Screen Layout & CSS (Centered pill buttons, hidden checkboxes)
 st.markdown(
     f"""
     <style>
@@ -55,20 +58,21 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Centered pill buttons with slightly narrower width */
+    /* Centered pill buttons */
     .stRadio div[role="radiogroup"] {{
         display: flex;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
+        margin-bottom: 6px;
     }}
     .stRadio div[role="radiogroup"] label {{
         background-color: rgba(128, 128, 128, 0.08);
         border: 1px solid rgba(128, 128, 128, 0.2);
         border-radius: 14px;
-        padding: 2px 10px !important;
+        padding: 3px 12px !important;
         cursor: pointer;
         transition: all 0.2s ease;
-        font-size: 0.68rem !important;
+        font-size: 0.7rem !important;
         font-weight: 600 !important;
         white-space: nowrap;
     }}
@@ -215,10 +219,10 @@ st.markdown(
 # 4. Header Row: WashDry, marginally larger timestamp, and Location on the same line
 st.markdown(
     f"""
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
         <div style="display: flex; align-items: baseline; gap: 8px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
-            <span style="font-size: 0.62rem; opacity: 0.65; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
+            <span style="font-size: 0.7rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
         <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
     </div>
@@ -226,29 +230,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Fabric Selection Row: Italicised 'fabric :' alongside centered pill buttons
-col_lbl, col_btns = st.columns([0.7, 3.3])
-
-with col_lbl:
-    st.markdown(
-        '<div style="text-align: right; font-style: italic; font-size: 0.72rem; opacity: 0.8; padding-top: 4px;">fabric :</div>',
-        unsafe_allow_html=True,
-    )
-
-with col_btns:
-    fabric_mode = st.radio(
-        "Load Type",
-        ["Light", "Normal", "Heavy"],
-        index=1,
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-
-# Multipliers for drying speed based on selected fabric
-if "Light" in fabric_mode:
+# Determine multipliers based on session state fabric mode
+if "Light" in st.session_state.fabric_mode:
     fabric_multiplier = 1.3
     fabric_label_tag = "Light Load"
-elif "Heavy" in fabric_mode:
+elif "Heavy" in st.session_state.fabric_mode:
     fabric_multiplier = 0.75
     fabric_label_tag = "Heavy Load"
 else:
@@ -424,6 +410,15 @@ for target_dt, block_label, block_hours in target_blocks:
         f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
+
+# 5. Fabric Pill Buttons Moved to the Bottom (Immediately Above Guide)
+st.radio(
+    "Load Type",
+    ["Light", "Normal", "Heavy"],
+    key="fabric_mode",
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 # 6. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
 with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
