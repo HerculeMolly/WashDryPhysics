@@ -39,7 +39,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS
+# 3. Optimized Screen Layout & CSS (including smaller compact radio buttons)
 st.markdown(
     f"""
     <style>
@@ -61,6 +61,14 @@ st.markdown(
         margin-bottom: 6px;
         padding-left: 2px;
         letter-spacing: -0.2px;
+    }}
+    /* Make fabric radio buttons smaller & compact */
+    .stRadio > div {{
+        gap: 12px;
+    }}
+    .stRadio label {{
+        font-size: 0.7rem !important;
+        padding: 0px !important;
     }}
     .slot-card {{
         background-color: rgba(128, 128, 128, 0.08);
@@ -192,30 +200,26 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry (Left) | Fabric Selector (Middle) | Location (Right)
-col_title, col_fabric, col_loc = st.columns([1.1, 1.4, 0.9])
-
-with col_title:
-    st.markdown(
-        '<h1 style="margin: 0; font-size: 1.2rem; font-weight: 800; line-height: 1.2;">WashDry</h1>',
-        unsafe_allow_html=True,
-    )
-
-with col_fabric:
-    fabric_mode = st.radio(
-        "Load Type",
-        ["👕 Normal", "⚡ Light", "👖 Heavy"],
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-
-with col_loc:
-    st.markdown(
-        f'<div style="text-align: right; font-size: 0.78rem; font-weight: 600; opacity: 0.8; padding-top: 2px;">📍 {city_name}</div>',
-        unsafe_allow_html=True,
-    )
+# 4. Header Row: WashDry & Location on the same line
+st.markdown(
+    f"""
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+        <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
+        <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
+    </div>
+""",
+    unsafe_allow_html=True,
+)
 
 st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
+
+# 5. Compact Fabric Filter Buttons (Ordered Light -> Normal -> Heavy)
+fabric_mode = st.radio(
+    "Load Type",
+    ["⚡ Light", "👕 Normal", "👖 Heavy"],
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 # Multipliers for drying speed based on selected fabric
 if "Light" in fabric_mode:
@@ -398,7 +402,7 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
-# 5. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
+# 6. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
 with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
     st.markdown(
         """
@@ -422,7 +426,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 6. Footer Branding
+# 7. Footer Branding
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
