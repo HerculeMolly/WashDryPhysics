@@ -213,11 +213,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry, Timestamp, and Location on the same line
+# 4. Header Row: WashDry, Timestamp pulled much closer, and Location on the same line
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
-        <div style="display: flex; align-items: baseline; gap: 5px;">
+        <div style="display: flex; align-items: baseline; gap: 4px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
             <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
