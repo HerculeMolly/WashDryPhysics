@@ -11,7 +11,6 @@ st.set_page_config(
     page_title="WashDry — Outdoor Drying Index", page_icon="🧺", layout="centered"
 )
 
-# Load local logo as base64 to ensure it renders reliably
 logo_base64 = ""
 logo_path = Path("logo.png")
 if logo_path.exists():
@@ -21,16 +20,14 @@ if logo_path.exists():
     except Exception:
         pass
 
-# Current time for the update stamp
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
 
-# 2. Optimized Screen Layout, Hidden Streamlit Chrome & Fluid CSS
+# 2. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
-    /* Hide Streamlit top header, deploy buttons, and hamburger menu */
     header {{display: none !important;}}
     .stAppHeader {{display: none !important;}}
     #MainMenu {{visibility: hidden !important;}}
@@ -169,62 +166,27 @@ st.markdown(
         opacity: 0.6;
     }}
 
-    /* TABLET & DESKTOP RESPONSIVE SCALING (768px and wider) */
     @media (min-width: 768px) {{
-        .block-container {{
-            max-width: 768px !important;
-            padding-top: 1.5rem;
-        }}
-        .washdry-header h1 {{
-            font-size: 1.8rem !important;
-        }}
-        .washdry-header span.location {{
-            font-size: 1.1rem !important;
-        }}
-        .slot-card {{
-            padding: 10px 14px;
-            margin-bottom: 8px;
-        }}
-        .slot-title {{
-            font-size: 1rem !important;
-        }}
-        .rating-badge {{
-            font-size: 0.75rem !important;
-            padding: 4px 8px;
-        }}
-        .rating-score {{
-            font-size: 1.1rem !important;
-        }}
-        .metric-label {{
-            font-size: 0.65rem !important;
-        }}
-        .metric-val {{
-            font-size: 0.9rem !important;
-        }}
-        .rain-subtext {{
-            font-size: 0.9rem !important;
-        }}
-        .footer-container {{
-            padding-top: 8px;
-            margin-top: 10px;
-        }}
-        .brand-logo {{
-            width: 34px !important;
-            height: 34px !important;
-        }}
-        .brand-name {{
-            font-size: 0.85rem !important;
-        }}
-        .brand-sub {{
-            font-size: 0.7rem !important;
-        }}
+        .block-container {{ max-width: 768px !important; padding-top: 1.5rem; }}
+        .washdry-header h1 {{ font-size: 1.8rem !important; }}
+        .washdry-header span.location {{ font-size: 1.1rem !important; }}
+        .slot-card {{ padding: 10px 14px; margin-bottom: 8px; }}
+        .slot-title {{ font-size: 1rem !important; }}
+        .rating-badge {{ font-size: 0.75rem !important; padding: 4px 8px; }}
+        .rating-score {{ font-size: 1.1rem !important; }}
+        .metric-label {{ font-size: 0.65rem !important; }}
+        .metric-val {{ font-size: 0.9rem !important; }}
+        .rain-subtext {{ font-size: 0.9rem !important; }}
+        .footer-container {{ padding-top: 8px; margin-top: 10px; }}
+        .brand-logo {{ width: 34px !important; height: 34px !important; }}
+        .brand-name {{ font-size: 0.85rem !important; }}
+        .brand-sub {{ font-size: 0.7rem !important; }}
     }}
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# 3. Header & Location (with compact timestamp on the row below)
 st.markdown(
     f"""
     <div class="washdry-header">
@@ -236,7 +198,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Data Fetching with Instant UI Placeholder Feedback
 @st.cache_data(ttl=1800)
 def fetch_weather_data():
     lat, lon = 52.5785, -0.1285
@@ -270,7 +231,6 @@ precips = hourly["precipitation"]
 wind_speeds = hourly["wind_speed_10m"]
 solar_rads = hourly.get("direct_radiation", [0]*len(times))
 
-# 5. Time & Block Slot Management
 def get_drying_score(temp, hum, rain_prob, wind):
     score = 3
     if temp > 18:
@@ -345,7 +305,6 @@ for target_dt, block_label, block_hours in target_blocks:
     eval_rain = max_rain_prob
     eval_wind = avg_wind
 
-    # Physics Calculations (Tetens & Dalton's Law)
     es = 0.61078 * math.exp((17.27 * eval_temp) / (eval_temp + 237.3))
     ea = es * (eval_hum / 100.0)
     vpd = max(0.0, es - ea)
@@ -380,53 +339,14 @@ for target_dt, block_label, block_hours in target_blocks:
         score = get_drying_score(eval_temp, eval_hum, eval_rain, eval_wind)
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
-        badge_html = f"""
-            <div class="rating-badge {badge_class}">
-                <span class="rating-score">{num_str}</span> {label_text}
-            </div>
-        """
-        physics_html = f"""
-            <div class="physics-row">
-                <span>⚡ Physics Est. Time: <strong>{est_time_str}</strong></span>
-                <span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span>
-            </div>
-        """
+        badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
+        physics_html = f'<div class="physics-row"><span>⚡ Physics Est. Time: <strong>{est_time_str}</strong></span><span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span></div>'
 
     st.markdown(
-        f"""
-        <div class="{card_class}">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="slot-title" style="font-size: 0.85rem; font-weight: 800; letter-spacing: -0.2px;">
-                    {day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}
-                </div>
-                <div>{badge_html}</div>
-            </div>
-            <hr style="margin: 4px 0 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);">
-            <div class="metrics-row">
-                <div class="metric-box">
-                    <div class="metric-label">Temp</div>
-                    <div class="metric-val">{high_temp}°C<br>{low_temp}°C</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">Humidity</div>
-                    <div class="metric-val">{avg_hum}%</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">Rain</div>
-                    <div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.75rem; font-weight:700;">({total_mm}mm)</span></div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">Wind</div>
-                    <div class="metric-val">{avg_wind} mph</div>
-                </div>
-            </div>
-            {physics_html}
-        </div>
-    """,
+        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.85rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 4px 0 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.75rem; font-weight:700;">({total_mm}mm)</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
 
-# 6. Brand Footer with Base64 Logo and Coffee Link
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
@@ -446,4 +366,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
