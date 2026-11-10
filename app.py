@@ -42,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS
+# 3. Optimized Screen Layout & CSS (Slightly larger physics row font size)
 st.markdown(
     f"""
     <style>
@@ -160,7 +160,7 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.74rem;
+        font-size: 0.79rem;
         margin-top: 2px;
         padding-top: 2px;
         border-top: 1px dashed rgba(128, 128, 128, 0.2);
