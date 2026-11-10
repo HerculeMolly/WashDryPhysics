@@ -8,7 +8,7 @@ import streamlit as st
 
 # 1. Page Configuration & Branding
 st.set_page_config(
-    page_title="WashDry — Outdoor Drying Index", page_icon="🧺", layout="centered"
+    page_title="WashDryPhysics — Outdoor Drying Index", page_icon="🧺", layout="centered"
 )
 
 logo_base64 = ""
@@ -35,7 +35,6 @@ def get_user_location():
             return data["latitude"], data["longitude"], city
     except Exception:
         pass
-    # Fallback to Peterborough if offline or lookup fails
     return 52.5785, -0.1285, "Peterborough"
 
 lat, lon, city_name = get_user_location()
@@ -227,12 +226,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Clean Header Row (Title + Dynamic Location)
+# 4. Clean Header Row (Title updated to WashDryPhysics + Dynamic Location)
 col_title, col_loc = st.columns([2, 1])
 
 with col_title:
     st.markdown(
-        '<h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDry</h1>',
+        '<h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDryPhysics</h1>',
         unsafe_allow_html=True,
     )
 
