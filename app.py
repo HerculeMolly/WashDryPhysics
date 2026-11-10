@@ -198,6 +198,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
 @st.cache_data(ttl=1800)
 def fetch_weather_data():
     lat, lon = 52.5785, -0.1285
@@ -212,8 +213,12 @@ def fetch_weather_data():
     except Exception:
         return None
 
+
 loading_placeholder = st.empty()
-loading_placeholder.markdown('<div class="instant-loader">Fetching latest weather data...</div>', unsafe_allow_html=True)
+loading_placeholder.markdown(
+    '<div class="instant-loader">Fetching latest weather data...</div>',
+    unsafe_allow_html=True,
+)
 
 data = fetch_weather_data()
 loading_placeholder.empty()
@@ -229,9 +234,10 @@ humidities = hourly["relative_humidity_2m"]
 precip_probs = hourly["precipitation_probability"]
 precips = hourly["precipitation"]
 wind_speeds = hourly["wind_speed_10m"]
-solar_rads = hourly.get("direct_radiation", [0]*len(times))
+solar_rads = hourly.get("direct_radiation", [0] * len(times))
 
-def get_drying_score(temp, hum, rain_prob, wind):
+
+def get_drying_score(temp, hum, rain_prob, wind, peak_mm):
     score = 3
     if temp > 18:
         score += 1
@@ -241,11 +247,12 @@ def get_drying_score(temp, hum, rain_prob, wind):
         score += 1
     elif hum > 85:
         score -= 1
-    if rain_prob > 40:
+    if rain_prob > 40 or peak_mm > 0.4:
         score -= 2
-    if wind > 10:
+    if wind > 8:  # Adjusted threshold for surface-level wind
         score += 1
     return max(1, min(5, score))
+
 
 score_labels = {
     5: ("5/5", "Perfect"),
@@ -296,8 +303,11 @@ for target_dt, block_label, block_hours in target_blocks:
     low_temp = min(block_temps)
     avg_hum = round(sum(block_hums) / len(block_hums))
     max_rain_prob = max(block_rains)
+    max_hourly_mm = max(block_mm) if block_mm else 0.0
     total_mm = round(sum(block_mm), 1)
-    avg_wind = round(sum(block_winds) / len(block_winds), 1)
+
+    # Apply 0.65 surface friction factor to scale 10m wind down to clothesline height (~2m)
+    avg_wind = round((sum(block_winds) / len(block_winds)) * 0.65, 1)
     avg_solar = sum(block_solar) / len(block_solar)
 
     eval_temp = high_temp
@@ -336,7 +346,9 @@ for target_dt, block_label, block_hours in target_blocks:
         badge_html = "<div class='rating-badge rating-expired'>EXPIRED</div>"
         physics_html = ""
     else:
-        score = get_drying_score(eval_temp, eval_hum, eval_rain, eval_wind)
+        score = get_drying_score(
+            eval_temp, eval_hum, eval_rain, eval_wind, max_hourly_mm
+        )
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
