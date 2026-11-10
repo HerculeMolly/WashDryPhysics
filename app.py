@@ -24,7 +24,23 @@ tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
 
-# 2. Optimized Screen Layout & CSS
+# 2. Automatic IP Geolocation (Real-time lookup)
+@st.cache_data(ttl=3600)
+def get_user_location():
+    try:
+        res = requests.get("https://ipapi.co/json/", timeout=3)
+        data = res.json()
+        if "latitude" in data and "longitude" in data:
+            city = data.get("city", "Local Area")
+            return data["latitude"], data["longitude"], city
+    except Exception:
+        pass
+    # Fallback to Peterborough if offline or lookup fails
+    return 52.5785, -0.1285, "Peterborough"
+
+lat, lon, city_name = get_user_location()
+
+# 3. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
@@ -211,7 +227,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Clean Header Row (Title + Location)
+# 4. Clean Header Row (Title + Dynamic Location)
 col_title, col_loc = st.columns([2, 1])
 
 with col_title:
@@ -222,7 +238,7 @@ with col_title:
 
 with col_loc:
     st.markdown(
-        '<div style="text-align: right; font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 P\'borough</div>',
+        f'<div style="text-align: right; font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>',
         unsafe_allow_html=True,
     )
 
@@ -230,10 +246,9 @@ st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=T
 
 
 @st.cache_data(ttl=1800)
-def fetch_weather_data():
-    lat, lon = 52.5785, -0.1285
+def fetch_weather_data(latitude, longitude):
     url = (
-        f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
         "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,direct_radiation"
         "&timezone=Europe/London&forecast_days=2"
     )
@@ -250,7 +265,7 @@ loading_placeholder.markdown(
     unsafe_allow_html=True,
 )
 
-data = fetch_weather_data()
+data = fetch_weather_data(lat, lon)
 loading_placeholder.empty()
 
 if not data or "hourly" not in data:
@@ -392,7 +407,7 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
-# 4. Integrated Microclimate & Fabric Guide Expander
+# 5. Integrated Microclimate & Fabric Guide Expander
 with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
     st.markdown(
         """
@@ -423,7 +438,7 @@ with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
         unsafe_allow_html=True,
     )
 
-# 5. Footer Branding
+# 6. Footer Branding
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
