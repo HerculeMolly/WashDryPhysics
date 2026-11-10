@@ -13,7 +13,7 @@ st.set_page_config(
 
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
-update_str = now.strftime("%H%M %a %d-%b-%y").lower()
+update_str = now.strftime("updated %H%M %d-%b-%y").lower()
 
 if "fabric_mode" not in st.session_state:
     st.session_state.fabric_mode = "Normal"
@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Increased text size after rating score)
+# 3. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
