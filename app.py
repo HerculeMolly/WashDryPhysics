@@ -144,24 +144,6 @@ st.markdown(
         font-size: 0.78rem !important;
         font-weight: 700 !important;
     }}
-    .guide-content {{
-        font-size: 0.72rem;
-        line-height: 1.4;
-        opacity: 0.9;
-        padding: 4px 2px;
-    }}
-    .guide-content h4 {{
-        font-size: 0.78rem;
-        margin-top: 8px;
-        margin-bottom: 4px;
-        font-weight: 800;
-    }}
-    .guide-science {{
-        font-style: italic;
-        opacity: 0.7;
-        font-size: 0.65rem;
-        margin-bottom: 4px;
-    }}
     .footer-container {{
         display: flex;
         justify-content: space-between;
@@ -215,7 +197,6 @@ st.markdown(
         .rating-score {{ font-size: 1rem !important; }}
         .metric-label {{ font-size: 0.6rem !important; }}
         .metric-val {{ font-size: 0.85rem !important; }}
-        .rain-subtext {{ font-size: 0.85rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
         .brand-logo {{ width: 32px !important; height: 32px !important; }}
         .brand-name {{ font-size: 0.82rem !important; }}
@@ -226,7 +207,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Clean Header Row (Title updated to WashDryPhysics + Dynamic Location)
+# 4. Clean Header Row
 col_title, col_loc = st.columns([2, 1])
 
 with col_title:
@@ -406,35 +387,28 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
-# 5. Integrated Microclimate & Fabric Guide Expander
+# 5. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
 with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
     st.markdown(
         """
-        <div class="guide-content">
-            <p>Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.</p>
-            
-            <hr style="margin: 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);">
-            
-            <h4>1. Garden Layout (The 20-30% Swing)</h4>
-            <div class="guide-science">Physics view: Boundary-layer decoupling & thermal mass radiation.</div>
-            <ul>
-                <li><b>The Slower Yard (Shelter Trap):</b> Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.</li>
-                <li><b>The Faster Yard (Sun-Trap Bonus):</b> Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.</li>
-            </ul>
+Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.
 
-            <h4>2. Fabric Density & Load Weight</h4>
-            <div class="guide-science">Physics view: Internal moisture diffusion & falling-rate drying phases.</div>
-            <ul>
-                <li><b>Light Loads (Synthetics / Shirts):</b> Water sits mostly on surface fibers and evaporates rapidly.</li>
-                <li><b>Normal Loads (Mixed Everyday Wash):</b> Standard cotton tees and garments take moderate time.</li>
-                <li><b>Heavy Loads (Jeans, Hoodies & Towels):</b> Dense fibers trap moisture deep inside, requiring significantly more thermal energy and time. Always mentally add extra time for thick cottons!</li>
-            </ul>
+---
 
-            <hr style="margin: 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);">
-            <p><b>Quick Rule of Thumb:</b> Trust "Bad" and "Perfect" forecasts implicitly (rain and high humidity beat everything). For "Steady" or "Fair" days, mentally adjust your expectations: round up for heavy towels in a shady yard, or round down for light sportswear in an open sun-trap!</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+### 1. Garden Layout (The 20–30% Swing)
+*Physics view: Boundary-layer decoupling & thermal mass radiation.*
+* **The Slower Yard (Shelter Trap):** Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.
+* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
+
+### 2. Fabric Density & Load Weight
+*Physics view: Internal moisture diffusion & falling-rate drying phases.*
+* **Light Loads (Synthetics / Shirts):** Water sits mostly on surface fibers and evaporates rapidly.
+* **Normal Loads (Mixed Everyday Wash):** Standard cotton tees and garments take moderate time.
+* **Heavy Loads (Jeans, Hoodies & Towels):** Dense fibers trap moisture deep inside, requiring significantly more thermal energy and time. Always mentally add extra time for thick cottons!
+
+---
+**Quick Rule of Thumb:** Trust "Bad" and "Perfect" forecasts implicitly (rain and high humidity beat everything). For "Steady" or "Fair" days, mentally adjust your expectations: round up for heavy towels in a shady yard, or round down for light sportswear in an open sun-trap!
+        """
     )
 
 # 6. Footer Branding
