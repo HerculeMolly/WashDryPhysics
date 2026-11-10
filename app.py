@@ -187,9 +187,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Compact Header Layout (Title + 3-Pill Fabric Selector + Location)
+# 3. Compact Header Layout (Title + Horizontal Radio Fabric Selector + Location)
 col_title, col_pills, col_loc = st.columns(
-    [1.1, 1.8, 1.1], vertical_alignment="center"
+    [1.0, 2.2, 1.0], vertical_alignment="center"
 )
 
 with col_title:
@@ -199,10 +199,11 @@ with col_title:
     )
 
 with col_pills:
-    fabric_choice = st.segmented_control(
+    fabric_choice = st.radio(
         label="Fabric",
         options=["Light", "👕", "Heavy"],
-        default="👕",
+        index=1,
+        horizontal=True,
         label_visibility="collapsed",
     )
 
@@ -337,7 +338,6 @@ for target_dt, block_label, block_hours in target_blocks:
     vpd = max(0.0, es - ea)
     evap_rate = (0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)
 
-    # Scale base evaporation hours by the selected fabric load weight
     if evap_rate > 0.4:
         est_hours = round(max(1.5, 3.5 - evap_rate * 2) * multiplier, 1)
         est_time_str = f"~{est_hours} hrs (Fast)"
