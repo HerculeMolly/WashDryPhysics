@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Reduced bottom margin on expander/container)
+# 3. Optimized Screen Layout & CSS (Removed bold weight from metric labels)
 st.markdown(
     f"""
     <style>
@@ -147,8 +147,8 @@ st.markdown(
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 1px;
-        font-weight: 800;
-        opacity: 0.8;
+        font-weight: 500;
+        opacity: 0.7;
     }}
     .metric-val {{
         font-size: 0.95rem;
@@ -207,7 +207,7 @@ st.markdown(
         .rating-badge {{ font-size: 0.78rem !important; padding: 3px 7px; }}
         .rating-score {{ font-size: 1.1rem !important; }}
         .rating-text {{ font-size: 0.98rem !important; }}
-        .metric-label {{ font-size: 0.76rem !important; }}
+        .metric-label {{ font-size: 0.76rem !important; font-weight: 500 !important; }}
         .metric-val {{ font-size: 1.05rem !important; }}
         .footer-container {{ padding-top: 4px; margin-top: 2px; }}
         .brand-name {{ font-size: 0.98rem !important; }}
@@ -448,7 +448,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Tightened bottom margin)
+# 7. Footer Branding
 st.markdown(
     """
     <div class="footer-container">
