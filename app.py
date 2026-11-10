@@ -192,40 +192,40 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Clean Header Row (Title updated back to WashDry)
-col_title, col_loc = st.columns([2, 1])
+# 4. Header Row: WashDry (Left) | Fabric Selector (Middle) | Location (Right)
+col_title, col_fabric, col_loc = st.columns([1.1, 1.4, 0.9])
 
 with col_title:
     st.markdown(
-        '<h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDry</h1>',
+        '<h1 style="margin: 0; font-size: 1.2rem; font-weight: 800; line-height: 1.2;">WashDry</h1>',
         unsafe_allow_html=True,
+    )
+
+with col_fabric:
+    fabric_mode = st.radio(
+        "Load Type",
+        ["👕 Normal", "⚡ Light", "👖 Heavy"],
+        horizontal=True,
+        label_visibility="collapsed",
     )
 
 with col_loc:
     st.markdown(
-        f'<div style="text-align: right; font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>',
+        f'<div style="text-align: right; font-size: 0.78rem; font-weight: 600; opacity: 0.8; padding-top: 2px;">📍 {city_name}</div>',
         unsafe_allow_html=True,
     )
 
 st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
 
-# 5. Fabric Filter Buttons (Interactive Load Selector)
-fabric_mode = st.radio(
-    "Load Type",
-    ["👕 Normal Wash", "⚡ Light / Synthetics", "👖 Heavy (Towels / Jeans)"],
-    horizontal=True,
-    label_visibility="collapsed",
-)
-
 # Multipliers for drying speed based on selected fabric
 if "Light" in fabric_mode:
-    fabric_multiplier = 1.3  # Dries faster
+    fabric_multiplier = 1.3
     fabric_label_tag = "Light Load"
 elif "Heavy" in fabric_mode:
-    fabric_multiplier = 0.75  # Takes longer
+    fabric_multiplier = 0.75
     fabric_label_tag = "Heavy Load"
 else:
-    fabric_multiplier = 1.0  # Standard baseline
+    fabric_multiplier = 1.0
     fabric_label_tag = "Normal Wash"
 
 
@@ -345,7 +345,6 @@ for target_dt, block_label, block_hours in target_blocks:
     ea = es * (eval_hum / 100.0)
     vpd = max(0.0, es - ea)
     
-    # Apply fabric multiplier to evaporation rate calculation
     evap_rate = ((0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)) * fabric_multiplier
 
     if evap_rate > 0.4:
@@ -388,12 +387,18 @@ for target_dt, block_label, block_hours in target_blocks:
         else ("color: #e03131;" if score < 3 else "color: #2b8a3e;")
     )
 
+    # Conditionally hide mm subtext if 0.0
+    if max_hourly_mm > 0.0:
+        rain_val_html = f"{max_rain_prob}%<br><span class='rain-subtext' style='font-size:0.68rem; font-weight:700; {rain_color}'>{max_hourly_mm}mm peak</span>"
+    else:
+        rain_val_html = f"{max_rain_prob}%"
+
     st.markdown(
-        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.68rem; font-weight:700; {rain_color}">{max_hourly_mm}mm peak</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
+        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
 
-# 6. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
+# 5. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
 with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
     st.markdown(
         """
@@ -417,7 +422,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding
+# 6. Footer Branding
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
