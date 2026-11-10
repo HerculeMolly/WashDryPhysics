@@ -24,10 +24,6 @@ tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
 
-# Initialize Fabric State if not set
-if "fabric_mode" not in st.session_state:
-    st.session_state.fabric_mode = "Norm"
-
 # 2. Optimized Screen Layout & CSS
 st.markdown(
     f"""
@@ -54,7 +50,7 @@ st.markdown(
         font-size: 0.55rem;
         opacity: 0.55;
         font-weight: 500;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         padding-left: 2px;
         letter-spacing: -0.2px;
     }}
@@ -126,6 +122,31 @@ st.markdown(
         border-top: 1px dashed rgba(128, 128, 128, 0.2);
         opacity: 0.85;
     }}
+    .streamlit-expanderHeader {{
+        background-color: rgba(128, 128, 128, 0.08);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: 6px;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+    }}
+    .guide-content {{
+        font-size: 0.72rem;
+        line-height: 1.4;
+        opacity: 0.9;
+        padding: 4px 2px;
+    }}
+    .guide-content h4 {{
+        font-size: 0.78rem;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        font-weight: 800;
+    }}
+    .guide-science {{
+        font-style: italic;
+        opacity: 0.7;
+        font-size: 0.65rem;
+        margin-bottom: 4px;
+    }}
     .footer-container {{
         display: flex;
         justify-content: space-between;
@@ -173,7 +194,6 @@ st.markdown(
     @media (min-width: 768px) {{
         .block-container {{ max-width: 768px !important; padding-top: 1rem; }}
         .washdry-header h1 {{ font-size: 1.6rem !important; }}
-        .washdry-header span.location {{ font-size: 1rem !important; }}
         .slot-card {{ padding: 8px 12px; margin-bottom: 6px; }}
         .slot-title {{ font-size: 0.95rem !important; }}
         .rating-badge {{ font-size: 0.7rem !important; padding: 3px 7px; }}
@@ -206,58 +226,7 @@ with col_loc:
         unsafe_allow_html=True,
     )
 
-st.markdown(
-    f'<div class="update-stamp" style="margin-bottom: 6px;">{update_str}</div>',
-    unsafe_allow_html=True,
-)
-
-# 4. Dedicated Fabric Selector Row (Universal compatibility)
-f_cols = st.columns(3)
-
-with f_cols[0]:
-    if st.button(
-        "Light",
-        use_container_width=True,
-        type=(
-            "primary"
-            if st.session_state.fabric_mode == "Light"
-            else "secondary"
-        ),
-    ):
-        st.session_state.fabric_mode = "Light"
-        st.rerun()
-
-with f_cols[1]:
-    if st.button(
-        "👕",
-        use_container_width=True,
-        type=(
-            "primary" if st.session_state.fabric_mode == "Norm" else "secondary"
-        ),
-    ):
-        st.session_state.fabric_mode = "Norm"
-        st.rerun()
-
-with f_cols[2]:
-    if st.button(
-        "Heavy",
-        use_container_width=True,
-        type=(
-            "primary"
-            if st.session_state.fabric_mode == "Heavy"
-            else "secondary"
-        ),
-    ):
-        st.session_state.fabric_mode = "Heavy"
-        st.rerun()
-
-st.markdown(
-    '<div style="margin-bottom: 4px;"></div>', unsafe_allow_html=True
-)
-
-# Fabric Multiplier Mapping based on active button state
-fabric_multipliers = {"Light": 1.0, "Norm": 1.3, "Heavy": 1.7}
-multiplier = fabric_multipliers.get(st.session_state.fabric_mode, 1.3)
+st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
 
 
 @st.cache_data(ttl=1800)
@@ -379,10 +348,10 @@ for target_dt, block_label, block_hours in target_blocks:
     evap_rate = (0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)
 
     if evap_rate > 0.4:
-        est_hours = round(max(1.5, 3.5 - evap_rate * 2) * multiplier, 1)
+        est_hours = round(max(1.5, 3.5 - evap_rate * 2), 1)
         est_time_str = f"~{est_hours} hrs (Fast)"
     elif evap_rate > 0.2:
-        est_hours = round(max(3.0, 6.0 - evap_rate * 3) * multiplier, 1)
+        est_hours = round(max(3.0, 6.0 - evap_rate * 3), 1)
         est_time_str = f"~{est_hours} hrs (Steady)"
     else:
         est_time_str = "6h+ (Slow / Indoor)"
@@ -423,6 +392,38 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
+# 4. Integrated Microclimate & Fabric Guide Expander
+with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
+    st.markdown(
+        """
+        <div class="guide-content">
+            <p>Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.</p>
+            
+            <hr style="margin: 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);">
+            
+            <h4>1. Garden Layout (The 20-30% Swing)</h4>
+            <div class="guide-science">Physics view: Boundary-layer decoupling & thermal mass radiation.</div>
+            <ul>
+                <li><b>The Slower Yard (Shelter Trap):</b> Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.</li>
+                <li><b>The Faster Yard (Sun-Trap Bonus):</b> Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.</li>
+            </ul>
+
+            <h4>2. Fabric Density & Load Weight</h4>
+            <div class="guide-science">Physics view: Internal moisture diffusion & falling-rate drying phases.</div>
+            <ul>
+                <li><b>Light Loads (Synthetics / Shirts):</b> Water sits mostly on surface fibers and evaporates rapidly.</li>
+                <li><b>Normal Loads (Mixed Everyday Wash):</b> Standard cotton tees and garments take moderate time.</li>
+                <li><b>Heavy Loads (Jeans, Hoodies & Towels):</b> Dense fibers trap moisture deep inside, requiring significantly more thermal energy and time. Always mentally add extra time for thick cottons!</li>
+            </ul>
+
+            <hr style="margin: 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);">
+            <p><b>Quick Rule of Thumb:</b> Trust "Bad" and "Perfect" forecasts implicitly (rain and high humidity beat everything). For "Steady" or "Fair" days, mentally adjust your expectations: round up for heavy towels in a shady yard, or round down for light sportswear in an open sun-trap!</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# 5. Footer Branding
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
