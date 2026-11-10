@@ -177,17 +177,6 @@ st.markdown(
     }}
     .brand-left {{
         display: flex;
-        align-items: center;
-        gap: 8px;
-    }}
-    .brand-logo {{
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        object-fit: cover;
-    }}
-    .brand-text {{
-        display: flex;
         flex-direction: column;
         line-height: 1.15;
     }}
@@ -219,7 +208,6 @@ st.markdown(
         .metric-label {{ font-size: 0.6rem !important; }}
         .metric-val {{ font-size: 0.88rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
-        .brand-logo {{ width: 32px !important; height: 32px !important; }}
         .brand-name {{ font-size: 0.82rem !important; }}
         .brand-sub {{ font-size: 0.65rem !important; }}
     }}
@@ -445,7 +433,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
 ### 1. Garden Layout (The 20–30% Swing)
 *Physics view: Boundary-layer decoupling & thermal mass radiation.*
 * **The Slower Yard (Shelter Trap):** Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.
-* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
+* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a securely integrated solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
 
 ### 2. Fabric Density & Load Weight
 *Physics view: Internal moisture diffusion & falling-rate drying phases.*
@@ -458,21 +446,18 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Combined with Streamlit credit)
-logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
-
+# 7. Footer Branding (Logo placeholder completely removed; text aligned cleanly)
 st.markdown(
-    f"""
+    """
     <div class="footer-container">
         <div class="brand-left">
-            <img src="{logo_src}" class="brand-logo" alt="Hercule Molly Logo" />
             <div class="brand-text">
                 <a href="https://herculemolly.co.uk" target="_blank" class="brand-name">Hercule Molly</a>
                 <span class="brand-sub">Quality Woodcraft Gifts &bull; Built with Streamlit</span>
             </div>
         </div>
         <div>
-            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size: 0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
+            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size:0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
         </div>
     </div>
 """,
