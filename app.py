@@ -22,7 +22,8 @@ if logo_path.exists():
 
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
-update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
+# Removed the word 'updated' and formatted cleanly
+update_str = now.strftime("%H%M %a %d-%b-%y").lower()
 
 # 2. Automatic IP Geolocation (Real-time lookup)
 @st.cache_data(ttl=3600)
@@ -39,7 +40,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Pill Button Styling)
+# 3. Optimized Screen Layout & CSS (Narrower pill buttons, hidden checkboxes, matched line height)
 st.markdown(
     f"""
     <style>
@@ -54,23 +55,26 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Transform radio group into centered pill buttons */
+    /* Centered pill buttons with slightly narrower width */
     .stRadio div[role="radiogroup"] {{
+        display: flex;
         justify-content: center;
-        gap: 10px;
+        gap: 6px;
     }}
     .stRadio div[role="radiogroup"] label {{
         background-color: rgba(128, 128, 128, 0.08);
         border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: 16px;
-        padding: 4px 14px !important;
+        border-radius: 14px;
+        padding: 2px 10px !important;
         cursor: pointer;
         transition: all 0.2s ease;
-        font-size: 0.72rem !important;
+        font-size: 0.68rem !important;
         font-weight: 600 !important;
+        white-space: nowrap;
     }}
+    /* Hide actual radio bullet / checkbox inputs completely */
     .stRadio div[role="radiogroup"] input[type="radio"] {{
-        display: none;
+        display: none !important;
     }}
     /* Selected pill button color change */
     .stRadio div[role="radiogroup"] label:has(input[type="radio"]:checked) {{
@@ -208,13 +212,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry, Update Time, and Location on the same line
+# 4. Header Row: WashDry, marginally larger timestamp, and Location on the same line
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
         <div style="display: flex; align-items: baseline; gap: 8px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
-            <span style="font-size: 0.55rem; opacity: 0.55; font-weight: 500; letter-spacing: -0.2px;">{update_str}</span>
+            <span style="font-size: 0.62rem; opacity: 0.65; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
         <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
     </div>
@@ -222,12 +226,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Fabric Selection Row with Italicised 'fabric :' on the left & Centered Pill Buttons
-col_lbl, col_btns = st.columns([1, 3])
+# 5. Fabric Selection Row: Italicised 'fabric :' alongside centered pill buttons
+col_lbl, col_btns = st.columns([0.7, 3.3])
 
 with col_lbl:
     st.markdown(
-        '<div style="text-align: right; font-style: italic; font-size: 0.75rem; opacity: 0.8; padding-top: 6px;">fabric :</div>',
+        '<div style="text-align: right; font-style: italic; font-size: 0.72rem; opacity: 0.8; padding-top: 4px;">fabric :</div>',
         unsafe_allow_html=True,
     )
 
