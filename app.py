@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Increased metric labels & values size further)
+# 3. Optimized Screen Layout & CSS (Reduced bottom margin on expander/container)
 st.markdown(
     f"""
     <style>
@@ -44,9 +44,14 @@ st.markdown(
     
     .block-container {{
         padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
+        padding-bottom: 0.2rem;
         max-width: 600px;
         margin: 0 auto;
+    }}
+    /* Reduce vertical gap before the expander / guide */
+    .stExpander {{
+        margin-top: -5px !important;
+        margin-bottom: -10px !important;
     }}
     /* Force absolute horizontal centering on the radio wrapper */
     .stRadio {{
@@ -165,10 +170,10 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 6px;
+        padding-top: 4px;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
-        margin-top: 6px;
-        margin-bottom: 10px;
+        margin-top: 2px;
+        margin-bottom: 5px;
     }}
     .brand-text {{
         display: flex;
@@ -204,7 +209,7 @@ st.markdown(
         .rating-text {{ font-size: 0.98rem !important; }}
         .metric-label {{ font-size: 0.76rem !important; }}
         .metric-val {{ font-size: 1.05rem !important; }}
-        .footer-container {{ padding-top: 6px; margin-top: 8px; }}
+        .footer-container {{ padding-top: 4px; margin-top: 2px; }}
         .brand-name {{ font-size: 0.98rem !important; }}
         .brand-sub {{ font-size: 0.78rem !important; }}
     }}
@@ -443,7 +448,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding
+# 7. Footer Branding (Tightened bottom margin)
 st.markdown(
     """
     <div class="footer-container">
