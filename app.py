@@ -192,7 +192,7 @@ st.markdown(
 )
 
 # 3. Clean Header Row (Title + Location)
-col_title, col_loc = st.columns([2, 1], vertical_alignment="center")
+col_title, col_loc = st.columns([2, 1])
 
 with col_title:
     st.markdown(
@@ -211,8 +211,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Dedicated Fabric Selector Row (Guaranteed full width on mobile)
-f_cols = st.columns(3, vertical_alignment="center")
+# 4. Dedicated Fabric Selector Row (Universal compatibility)
+f_cols = st.columns(3)
 
 with f_cols[0]:
     if st.button(
