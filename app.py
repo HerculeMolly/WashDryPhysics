@@ -458,7 +458,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Using your actual loaded base64 logo if present)
+# 7. Footer Branding (Combined with Streamlit credit)
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
@@ -468,7 +468,7 @@ st.markdown(
             <img src="{logo_src}" class="brand-logo" alt="Hercule Molly Logo" />
             <div class="brand-text">
                 <a href="https://herculemolly.co.uk" target="_blank" class="brand-name">Hercule Molly</a>
-                <span class="brand-sub">Quality Woodcraft Gifts</span>
+                <span class="brand-sub">Quality Woodcraft Gifts &bull; Built with Streamlit</span>
             </div>
         </div>
         <div>
