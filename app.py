@@ -42,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Slightly larger physics row font size)
+# 3. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
@@ -228,13 +228,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry, Timestamp, and Location on the same line
+# 4. Header Row: WashDry, marginally larger timestamp pulled closer, and Location on the same line
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
-        <div style="display: flex; align-items: baseline; gap: 8px;">
+        <div style="display: flex; align-items: baseline; gap: 5px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
-            <span style="font-size: 0.7rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
+            <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
         <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
     </div>
