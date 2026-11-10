@@ -24,7 +24,6 @@ tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("%H%M %a %d-%b-%y").lower()
 
-# Initialize session state for fabric mode so buttons can live at the bottom
 if "fabric_mode" not in st.session_state:
     st.session_state.fabric_mode = "Normal"
 
@@ -43,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Centered pill buttons, hidden checkboxes)
+# 3. Optimized Screen Layout & CSS (Centered pill buttons with zero bottom margin)
 st.markdown(
     f"""
     <style>
@@ -58,12 +57,15 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Centered pill buttons */
+    /* Centered pill buttons with minimal spacing */
+    .stRadio {{
+        margin-bottom: -15px !important;
+    }}
     .stRadio div[role="radiogroup"] {{
         display: flex;
         justify-content: center;
         gap: 8px;
-        margin-bottom: 6px;
+        margin-bottom: 0px !important;
     }}
     .stRadio div[role="radiogroup"] label {{
         background-color: rgba(128, 128, 128, 0.08);
@@ -216,7 +218,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry, marginally larger timestamp, and Location on the same line
+# 4. Header Row: WashDry, Timestamp, and Location on the same line
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
@@ -400,7 +402,6 @@ for target_dt, block_label, block_hours in target_blocks:
         else ("color: #e03131;" if score < 3 else "color: #2b8a3e;")
     )
 
-    # Conditionally hide mm subtext if 0.0
     if max_hourly_mm > 0.0:
         rain_val_html = f"{max_rain_prob}%<br><span class='rain-subtext' style='font-size:0.68rem; font-weight:700; {rain_color}'>{max_hourly_mm}mm peak</span>"
     else:
@@ -411,7 +412,7 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
-# 5. Fabric Pill Buttons Moved to the Bottom (Immediately Above Guide)
+# 5. Fabric Pill Buttons (Centered, minimal gap to guide)
 st.radio(
     "Load Type",
     ["Light", "Normal", "Heavy"],
