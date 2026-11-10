@@ -1,8 +1,5 @@
-import base64
 from datetime import datetime, timedelta
 import math
-from pathlib import Path
-from zoneinfo import ZoneInfo
 import requests
 import streamlit as st
 
@@ -33,7 +30,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Removed bold weight from metric labels)
+# 3. Optimized Screen Layout & CSS (Compressed vertical footprints to fit shorter screens)
 st.markdown(
     f"""
     <style>
@@ -43,21 +40,19 @@ st.markdown(
     footer {{visibility: hidden;}}
     
     .block-container {{
-        padding-top: 0.5rem;
-        padding-bottom: 0.2rem;
+        padding-top: 0.2rem;
+        padding-bottom: 0.1rem;
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Reduce vertical gap before the expander / guide */
     .stExpander {{
-        margin-top: -5px !important;
-        margin-bottom: -10px !important;
+        margin-top: -6px !important;
+        margin-bottom: -12px !important;
     }}
-    /* Force absolute horizontal centering on the radio wrapper */
     .stRadio {{
         display: flex;
         justify-content: center;
-        margin-bottom: -15px !important;
+        margin-bottom: -12px !important;
     }}
     .stRadio > div {{
         display: flex;
@@ -76,18 +71,16 @@ st.markdown(
         background-color: rgba(128, 128, 128, 0.08);
         border: 1px solid rgba(128, 128, 128, 0.2);
         border-radius: 14px;
-        padding: 3px 12px !important;
+        padding: 2px 10px !important;
         cursor: pointer;
         transition: all 0.2s ease;
         font-size: 0.7rem !important;
         font-weight: 600 !important;
         white-space: nowrap;
     }}
-    /* Hide actual radio bullet / checkbox inputs completely */
     .stRadio div[role="radiogroup"] input[type="radio"] {{
         display: none !important;
     }}
-    /* Selected pill button color change */
     .stRadio div[role="radiogroup"] label:has(input[type="radio"]:checked) {{
         background-color: rgba(40, 167, 69, 0.2) !important;
         border-color: #28a745 !important;
@@ -97,8 +90,8 @@ st.markdown(
         background-color: rgba(128, 128, 128, 0.08);
         border: 1.5px solid rgba(128, 128, 128, 0.35);
         border-radius: 6px;
-        padding: 6px 8px;
-        margin-bottom: 4px;
+        padding: 4px 6px;
+        margin-bottom: 3px;
     }}
     .expired-card {{
         opacity: 0.5;
@@ -106,17 +99,17 @@ st.markdown(
     .rating-badge {{
         font-size: 0.72rem;
         font-weight: 600;
-        padding: 2px 6px;
+        padding: 1px 5px;
         border-radius: 4px;
         text-align: right;
         line-height: 1.1;
     }}
     .rating-score {{
-        font-size: 1.0rem;
+        font-size: 0.95rem;
         font-weight: 900;
     }}
     .rating-text {{
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         font-weight: 700;
     }}
     .rating-expired {{
@@ -136,31 +129,31 @@ st.markdown(
         justify-content: space-between;
         align-items: flex-start;
         text-align: center;
-        margin-top: 2px;
+        margin-top: 1px;
     }}
     .metric-box {{
         flex: 1;
         padding: 0 2px;
     }}
     .metric-label {{
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 1px;
+        margin-bottom: 0px;
         font-weight: 500;
         opacity: 0.7;
     }}
     .metric-val {{
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         font-weight: 700;
-        line-height: 1.15;
+        line-height: 1.1;
         white-space: nowrap;
     }}
     .physics-row {{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.79rem;
+        font-size: 0.76rem;
         margin-top: 2px;
         padding-top: 2px;
         border-top: 1px dashed rgba(128, 128, 128, 0.2);
@@ -170,25 +163,25 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 4px;
+        padding-top: 3px;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
         margin-top: 2px;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
     }}
     .brand-text {{
         display: flex;
         flex-direction: column;
-        line-height: 1.2;
+        line-height: 1.15;
         text-align: right;
     }}
     .brand-name {{
         text-decoration: none;
         color: inherit;
         font-weight: 700;
-        font-size: 0.92rem;
+        font-size: 0.88rem;
     }}
     .brand-sub {{
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         opacity: 0.8;
         font-weight: 600;
     }}
@@ -221,7 +214,7 @@ st.markdown(
 # 4. Header Row: WashDry, Timestamp pulled directly adjacent with minimal gap
 st.markdown(
     f"""
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
         <div style="display: flex; align-items: baseline; gap: 2px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
             <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
@@ -411,7 +404,7 @@ for target_dt, block_label, block_hours in target_blocks:
         rain_val_html = f"{max_rain_prob}%"
 
     st.markdown(
-        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 4px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
+        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 2px 0 3px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
 
@@ -463,4 +456,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
