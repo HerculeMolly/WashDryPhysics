@@ -24,6 +24,10 @@ tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
 
+# Initialize Fabric State if not set
+if "fabric_mode" not in st.session_state:
+    st.session_state.fabric_mode = "Norm"
+
 # 2. Optimized Screen Layout & CSS
 st.markdown(
     f"""
@@ -187,9 +191,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Compact Header Layout (Title + Horizontal Radio Fabric Selector + Location)
-col_title, col_pills, col_loc = st.columns(
-    [1.0, 2.2, 1.0], vertical_alignment="center"
+# 3. Compact Header Layout with 3 Inline Fabric Buttons
+col_title, col_btn1, col_btn2, col_btn3, col_loc = st.columns(
+    [1.2, 0.8, 0.8, 0.8, 1.1], vertical_alignment="center"
 )
 
 with col_title:
@@ -198,14 +202,42 @@ with col_title:
         unsafe_allow_html=True,
     )
 
-with col_pills:
-    fabric_choice = st.radio(
-        label="Fabric",
-        options=["Light", "👕", "Heavy"],
-        index=1,
-        horizontal=True,
-        label_visibility="collapsed",
-    )
+with col_btn1:
+    if st.button(
+        "Light",
+        use_container_width=True,
+        type=(
+            "primary"
+            if st.session_state.fabric_mode == "Light"
+            else "secondary"
+        ),
+    ):
+        st.session_state.fabric_mode = "Light"
+        st.rerun()
+
+with col_btn2:
+    if st.button(
+        "👕",
+        use_container_width=True,
+        type=(
+            "primary" if st.session_state.fabric_mode == "Norm" else "secondary"
+        ),
+    ):
+        st.session_state.fabric_mode = "Norm"
+        st.rerun()
+
+with col_btn3:
+    if st.button(
+        "Heavy",
+        use_container_width=True,
+        type=(
+            "primary"
+            if st.session_state.fabric_mode == "Heavy"
+            else "secondary"
+        ),
+    ):
+        st.session_state.fabric_mode = "Heavy"
+        st.rerun()
 
 with col_loc:
     st.markdown(
@@ -215,9 +247,9 @@ with col_loc:
 
 st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
 
-# Fabric Multiplier Mapping
-fabric_multipliers = {"Light": 1.0, "👕": 1.3, "Heavy": 1.7}
-multiplier = fabric_multipliers.get(fabric_choice, 1.3)
+# Fabric Multiplier Mapping based on active button state
+fabric_multipliers = {"Light": 1.0, "Norm": 1.3, "Heavy": 1.7}
+multiplier = fabric_multipliers.get(st.session_state.fabric_mode, 1.3)
 
 
 @st.cache_data(ttl=1800)
