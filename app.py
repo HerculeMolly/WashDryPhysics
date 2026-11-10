@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Enlarged footer branding text)
+# 3. Optimized Screen Layout & CSS (Increased metric labels and values size)
 st.markdown(
     f"""
     <style>
@@ -134,15 +134,15 @@ st.markdown(
         padding: 0 2px;
     }}
     .metric-label {{
-        font-size: 0.52rem;
+        font-size: 0.62rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 1px;
         font-weight: 700;
-        opacity: 0.7;
+        opacity: 0.75;
     }}
     .metric-val {{
-        font-size: 0.77rem;
+        font-size: 0.86rem;
         font-weight: 700;
         line-height: 1.15;
         white-space: nowrap;
@@ -197,8 +197,8 @@ st.markdown(
         .slot-title {{ font-size: 0.95rem !important; }}
         .rating-badge {{ font-size: 0.7rem !important; padding: 3px 7px; }}
         .rating-score {{ font-size: 1rem !important; }}
-        .metric-label {{ font-size: 0.6rem !important; }}
-        .metric-val {{ font-size: 0.88rem !important; }}
+        .metric-label {{ font-size: 0.68rem !important; }}
+        .metric-val {{ font-size: 0.96rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
         .brand-name {{ font-size: 0.98rem !important; }}
         .brand-sub {{ font-size: 0.78rem !important; }}
@@ -396,7 +396,7 @@ for target_dt, block_label, block_hours in target_blocks:
     )
 
     if max_hourly_mm > 0.0:
-        rain_val_html = f"{max_rain_prob}%<br><span class='rain-subtext' style='font-size:0.68rem; font-weight:700; {rain_color}'>{max_hourly_mm}mm peak</span>"
+        rain_val_html = f"{max_rain_prob}%<br><span class='rain-subtext' style='font-size:0.72rem; font-weight:700; {rain_color}'>{max_hourly_mm}mm peak</span>"
     else:
         rain_val_html = f"{max_rain_prob}%"
 
@@ -438,7 +438,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Buy Coffee on left, larger Hercule Molly branding on right)
+# 7. Footer Branding
 st.markdown(
     """
     <div class="footer-container">
