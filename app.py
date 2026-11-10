@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Increased metric labels and values size)
+# 3. Optimized Screen Layout & CSS (Increased rating text size)
 st.markdown(
     f"""
     <style>
@@ -99,7 +99,7 @@ st.markdown(
         opacity: 0.5;
     }}
     .rating-badge {{
-        font-size: 0.6rem;
+        font-size: 0.72rem;
         font-weight: 600;
         padding: 2px 6px;
         border-radius: 4px;
@@ -107,7 +107,7 @@ st.markdown(
         line-height: 1.1;
     }}
     .rating-score {{
-        font-size: 0.9rem;
+        font-size: 1.0rem;
         font-weight: 900;
     }}
     .rating-expired {{
@@ -195,8 +195,8 @@ st.markdown(
         .block-container {{ max-width: 768px !important; padding-top: 1rem; }}
         .slot-card {{ padding: 8px 12px; margin-bottom: 6px; }}
         .slot-title {{ font-size: 0.95rem !important; }}
-        .rating-badge {{ font-size: 0.7rem !important; padding: 3px 7px; }}
-        .rating-score {{ font-size: 1rem !important; }}
+        .rating-badge {{ font-size: 0.78rem !important; padding: 3px 7px; }}
+        .rating-score {{ font-size: 1.1rem !important; }}
         .metric-label {{ font-size: 0.68rem !important; }}
         .metric-val {{ font-size: 0.96rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
