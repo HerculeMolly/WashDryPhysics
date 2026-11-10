@@ -39,7 +39,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Centered Pill Button Styling)
+# 3. Optimized Screen Layout & CSS (Pill Button Styling)
 st.markdown(
     f"""
     <style>
@@ -54,21 +54,29 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Center horizontal radio group and transform into pill buttons */
-    .stRadio > div[role="radiogroup"] {{
+    /* Transform radio group into centered pill buttons */
+    .stRadio div[role="radiogroup"] {{
         justify-content: center;
-        gap: 12px;
+        gap: 10px;
     }}
     .stRadio div[role="radiogroup"] label {{
         background-color: rgba(128, 128, 128, 0.08);
         border: 1px solid rgba(128, 128, 128, 0.2);
         border-radius: 16px;
-        padding: 3px 14px !important;
+        padding: 4px 14px !important;
         cursor: pointer;
         transition: all 0.2s ease;
+        font-size: 0.72rem !important;
+        font-weight: 600 !important;
     }}
     .stRadio div[role="radiogroup"] input[type="radio"] {{
         display: none;
+    }}
+    /* Selected pill button color change */
+    .stRadio div[role="radiogroup"] label:has(input[type="radio"]:checked) {{
+        background-color: rgba(40, 167, 69, 0.2) !important;
+        border-color: #28a745 !important;
+        color: #2b8a3e !important;
     }}
     .slot-card {{
         background-color: rgba(128, 128, 128, 0.08);
@@ -214,14 +222,23 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Centered Fabric Pill Buttons (Defaulting to Normal / *Fabric*)
-fabric_mode = st.radio(
-    "Load Type",
-    ["Light", "*Fabric*", "Heavy"],
-    index=1,
-    horizontal=True,
-    label_visibility="collapsed",
-)
+# 5. Fabric Selection Row with Italicised 'fabric :' on the left & Centered Pill Buttons
+col_lbl, col_btns = st.columns([1, 3])
+
+with col_lbl:
+    st.markdown(
+        '<div style="text-align: right; font-style: italic; font-size: 0.75rem; opacity: 0.8; padding-top: 6px;">fabric :</div>',
+        unsafe_allow_html=True,
+    )
+
+with col_btns:
+    fabric_mode = st.radio(
+        "Load Type",
+        ["Light", "Normal", "Heavy"],
+        index=1,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
 
 # Multipliers for drying speed based on selected fabric
 if "Light" in fabric_mode:
