@@ -39,7 +39,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (including smaller compact radio buttons)
+# 3. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
@@ -53,14 +53,6 @@ st.markdown(
         padding-bottom: 0.5rem;
         max-width: 600px;
         margin: 0 auto;
-    }}
-    .update-stamp {{
-        font-size: 0.55rem;
-        opacity: 0.55;
-        font-weight: 500;
-        margin-bottom: 6px;
-        padding-left: 2px;
-        letter-spacing: -0.2px;
     }}
     /* Make fabric radio buttons smaller & compact */
     .stRadio > div {{
@@ -200,18 +192,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry & Location on the same line
+# 4. Header Row: WashDry, Update Time, and Location on the same line
 st.markdown(
     f"""
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
-        <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+            <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
+            <span style="font-size: 0.55rem; opacity: 0.55; font-weight: 500; letter-spacing: -0.2px;">{update_str}</span>
+        </div>
         <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
     </div>
 """,
     unsafe_allow_html=True,
 )
-
-st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
 
 # 5. Compact Fabric Filter Buttons (Ordered Light -> Normal -> Heavy)
 fabric_mode = st.radio(
