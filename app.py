@@ -39,7 +39,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Centered Pill Buttons)
+# 3. Optimized Screen Layout & CSS (Centered Pill Button Styling)
 st.markdown(
     f"""
     <style>
@@ -54,18 +54,21 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
-    /* Center horizontal radio group / pill buttons */
+    /* Center horizontal radio group and transform into pill buttons */
     .stRadio > div[role="radiogroup"] {{
         justify-content: center;
-        gap: 16px;
+        gap: 12px;
     }}
-    .stRadio label {{
-        font-size: 0.72rem !important;
-        font-weight: 600 !important;
-        padding: 2px 10px !important;
+    .stRadio div[role="radiogroup"] label {{
         background-color: rgba(128, 128, 128, 0.08);
         border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: 12px;
+        border-radius: 16px;
+        padding: 3px 14px !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }}
+    .stRadio div[role="radiogroup"] input[type="radio"] {{
+        display: none;
     }}
     .slot-card {{
         background-color: rgba(128, 128, 128, 0.08);
@@ -211,10 +214,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Centered Fabric Pill Buttons (Default to 'fabric' index 1)
+# 5. Centered Fabric Pill Buttons (Defaulting to Normal / *Fabric*)
 fabric_mode = st.radio(
     "Load Type",
-    ["Light", "*fabric*", "Heavy"],
+    ["Light", "*Fabric*", "Heavy"],
     index=1,
     horizontal=True,
     label_visibility="collapsed",
