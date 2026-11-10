@@ -24,7 +24,7 @@ tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
 
-# 2. Optimized Screen Layout & CSS
+# 2. Optimized Screen Layout & CSS (Tighter Section Heights)
 st.markdown(
     f"""
     <style>
@@ -34,8 +34,8 @@ st.markdown(
     footer {{visibility: hidden;}}
     
     .block-container {{
-        padding-top: 1rem;
-        padding-bottom: 1rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
         max-width: 600px;
         margin: 0 auto;
     }}
@@ -43,37 +43,37 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        margin-bottom: 2px;
+        margin-bottom: 1px;
         padding: 0 2px;
     }}
     .update-stamp {{
-        font-size: 0.58rem;
+        font-size: 0.55rem;
         opacity: 0.55;
         font-weight: 500;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         padding-left: 2px;
         letter-spacing: -0.2px;
     }}
     .slot-card {{
         background-color: rgba(128, 128, 128, 0.08);
         border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: 8px;
-        padding: 8px 10px;
-        margin-bottom: 6px;
+        border-radius: 6px;
+        padding: 6px 8px;
+        margin-bottom: 4px;
     }}
     .expired-card {{
         opacity: 0.5;
     }}
     .rating-badge {{
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 600;
-        padding: 3px 7px;
+        padding: 2px 6px;
         border-radius: 4px;
         text-align: right;
-        line-height: 1.2;
+        line-height: 1.1;
     }}
     .rating-score {{
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 900;
     }}
     .rating-expired {{
@@ -93,14 +93,14 @@ st.markdown(
         justify-content: space-between;
         align-items: flex-start;
         text-align: center;
-        margin-top: 4px;
+        margin-top: 2px;
     }}
     .metric-box {{
         flex: 1;
         padding: 0 2px;
     }}
     .metric-label {{
-        font-size: 0.55rem;
+        font-size: 0.52rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 1px;
@@ -108,17 +108,17 @@ st.markdown(
         opacity: 0.7;
     }}
     .metric-val {{
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        line-height: 1.2;
+        line-height: 1.15;
     }}
     .physics-row {{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.7rem;
-        margin-top: 6px;
-        padding-top: 4px;
+        font-size: 0.68rem;
+        margin-top: 4px;
+        padding-top: 3px;
         border-top: 1px dashed rgba(128, 128, 128, 0.2);
         opacity: 0.85;
     }}
@@ -126,10 +126,10 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 8px;
+        padding-top: 6px;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
-        margin-top: 8px;
-        margin-bottom: 16px;
+        margin-top: 6px;
+        margin-bottom: 10px;
     }}
     .brand-left {{
         display: flex;
@@ -137,24 +137,24 @@ st.markdown(
         gap: 8px;
     }}
     .brand-logo {{
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         object-fit: cover;
     }}
     .brand-text {{
         display: flex;
         flex-direction: column;
-        line-height: 1.2;
+        line-height: 1.15;
     }}
     .brand-name {{
         text-decoration: none;
         color: inherit;
         font-weight: 700;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }}
     .brand-sub {{
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         opacity: 0.7;
         font-weight: 500;
     }}
@@ -167,20 +167,20 @@ st.markdown(
     }}
 
     @media (min-width: 768px) {{
-        .block-container {{ max-width: 768px !important; padding-top: 1.5rem; }}
-        .washdry-header h1 {{ font-size: 1.8rem !important; }}
-        .washdry-header span.location {{ font-size: 1.1rem !important; }}
-        .slot-card {{ padding: 10px 14px; margin-bottom: 8px; }}
-        .slot-title {{ font-size: 1rem !important; }}
-        .rating-badge {{ font-size: 0.75rem !important; padding: 4px 8px; }}
-        .rating-score {{ font-size: 1.1rem !important; }}
-        .metric-label {{ font-size: 0.65rem !important; }}
-        .metric-val {{ font-size: 0.9rem !important; }}
-        .rain-subtext {{ font-size: 0.9rem !important; }}
-        .footer-container {{ padding-top: 8px; margin-top: 10px; }}
-        .brand-logo {{ width: 34px !important; height: 34px !important; }}
-        .brand-name {{ font-size: 0.85rem !important; }}
-        .brand-sub {{ font-size: 0.7rem !important; }}
+        .block-container {{ max-width: 768px !important; padding-top: 1rem; }}
+        .washdry-header h1 {{ font-size: 1.6rem !important; }}
+        .washdry-header span.location {{ font-size: 1rem !important; }}
+        .slot-card {{ padding: 8px 12px; margin-bottom: 6px; }}
+        .slot-title {{ font-size: 0.95rem !important; }}
+        .rating-badge {{ font-size: 0.7rem !important; padding: 3px 7px; }}
+        .rating-score {{ font-size: 1rem !important; }}
+        .metric-label {{ font-size: 0.6rem !important; }}
+        .metric-val {{ font-size: 0.85rem !important; }}
+        .rain-subtext {{ font-size: 0.85rem !important; }}
+        .footer-container {{ padding-top: 6px; margin-top: 8px; }}
+        .brand-logo {{ width: 32px !important; height: 32px !important; }}
+        .brand-name {{ font-size: 0.82rem !important; }}
+        .brand-sub {{ font-size: 0.65rem !important; }}
     }}
     </style>
 """,
@@ -190,8 +190,8 @@ st.markdown(
 st.markdown(
     f"""
     <div class="washdry-header">
-        <h1 style="margin: 0; font-size: 1.4rem; font-weight: 800; line-height: 1;">WashDry</h1>
-        <span class="location" style="font-size: 0.9rem; font-weight: 600; opacity: 0.8;">📍 Peterborough</span>
+        <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDry</h1>
+        <span class="location" style="font-size: 0.85rem; font-weight: 600; opacity: 0.8;">📍 Peterborough</span>
     </div>
     <div class="update-stamp">{update_str}</div>
 """,
@@ -249,7 +249,7 @@ def get_drying_score(temp, hum, rain_prob, wind, peak_mm):
         score -= 1
     if rain_prob > 40 or peak_mm > 0.4:
         score -= 2
-    if wind > 8:  # Adjusted threshold for surface-level wind
+    if wind > 8:
         score += 1
     return max(1, min(5, score))
 
@@ -303,11 +303,10 @@ for target_dt, block_label, block_hours in target_blocks:
     low_temp = min(block_temps)
     avg_hum = round(sum(block_hums) / len(block_hums))
     max_rain_prob = max(block_rains)
-    max_hourly_mm = max(block_mm) if block_mm else 0.0
-    total_mm = round(sum(block_mm), 1)
-
-    # Apply 0.65 surface friction factor to scale 10m wind down to clothesline height (~2m)
-    avg_wind = round((sum(block_winds) / len(block_winds)) * 0.65, 1)
+    max_hourly_mm = round(max(block_mm), 1) if block_mm else 0.0
+    avg_wind = round(
+        (sum(block_winds) / len(block_winds)) * 0.65, 1
+    )  # Surface friction scaled wind
     avg_solar = sum(block_solar) / len(block_solar)
 
     eval_temp = high_temp
@@ -355,7 +354,7 @@ for target_dt, block_label, block_hours in target_blocks:
         physics_html = f'<div class="physics-row"><span>⚡ Physics Est. Time: <strong>{est_time_str}</strong></span><span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span></div>'
 
     st.markdown(
-        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.85rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 4px 0 6px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.75rem; font-weight:700;">{total_mm}mm</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
+        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.68rem; font-weight:700;">{max_hourly_mm}mm peak</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
 
@@ -372,7 +371,7 @@ st.markdown(
             </div>
         </div>
         <div>
-            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; white-space: nowrap;">☕ Buy me a coffee</a>
+            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size: 0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
         </div>
     </div>
 """,
