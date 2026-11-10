@@ -24,7 +24,7 @@ tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("updated-%H%M %a %d-%b-%y").lower()
 
-# 2. Optimized Screen Layout & CSS (Tighter Section Heights)
+# 2. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
@@ -42,7 +42,7 @@ st.markdown(
     .washdry-header {{
         display: flex;
         justify-content: space-between;
-        align-items: baseline;
+        align-items: center;
         margin-bottom: 1px;
         padding: 0 2px;
     }}
@@ -187,16 +187,36 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown(
-    f"""
-    <div class="washdry-header">
-        <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDry</h1>
-        <span class="location" style="font-size: 0.85rem; font-weight: 600; opacity: 0.8;">📍 Peterborough</span>
-    </div>
-    <div class="update-stamp">{update_str}</div>
-""",
-    unsafe_allow_html=True,
+# 3. Compact Header Layout (Title + 3-Pill Fabric Selector + Location)
+col_title, col_pills, col_loc = st.columns(
+    [1.1, 1.8, 1.1], vertical_alignment="center"
 )
+
+with col_title:
+    st.markdown(
+        '<h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDry</h1>',
+        unsafe_allow_html=True,
+    )
+
+with col_pills:
+    fabric_choice = st.segmented_control(
+        label="Fabric",
+        options=["Light", "👕", "Heavy"],
+        default="👕",
+        label_visibility="collapsed",
+    )
+
+with col_loc:
+    st.markdown(
+        '<div style="text-align: right; font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 P\'borough</div>',
+        unsafe_allow_html=True,
+    )
+
+st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
+
+# Fabric Multiplier Mapping
+fabric_multipliers = {"Light": 1.0, "👕": 1.3, "Heavy": 1.7}
+multiplier = fabric_multipliers.get(fabric_choice, 1.3)
 
 
 @st.cache_data(ttl=1800)
@@ -304,9 +324,7 @@ for target_dt, block_label, block_hours in target_blocks:
     avg_hum = round(sum(block_hums) / len(block_hums))
     max_rain_prob = max(block_rains)
     max_hourly_mm = round(max(block_mm), 1) if block_mm else 0.0
-    avg_wind = round(
-        (sum(block_winds) / len(block_winds)) * 0.65, 1
-    )  # Surface friction scaled wind
+    avg_wind = round((sum(block_winds) / len(block_winds)) * 0.65, 1)
     avg_solar = sum(block_solar) / len(block_solar)
 
     eval_temp = high_temp
@@ -319,11 +337,12 @@ for target_dt, block_label, block_hours in target_blocks:
     vpd = max(0.0, es - ea)
     evap_rate = (0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)
 
+    # Scale base evaporation hours by the selected fabric load weight
     if evap_rate > 0.4:
-        est_hours = round(max(1.5, 3.5 - evap_rate * 2), 1)
+        est_hours = round(max(1.5, 3.5 - evap_rate * 2) * multiplier, 1)
         est_time_str = f"~{est_hours} hrs (Fast)"
     elif evap_rate > 0.2:
-        est_hours = round(max(3.0, 6.0 - evap_rate * 3), 1)
+        est_hours = round(max(3.0, 6.0 - evap_rate * 3) * multiplier, 1)
         est_time_str = f"~{est_hours} hrs (Steady)"
     else:
         est_time_str = "6h+ (Slow / Indoor)"
@@ -353,11 +372,11 @@ for target_dt, block_label, block_hours in target_blocks:
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
         physics_html = f'<div class="physics-row"><span>⚡ Physics Est. Time: <strong>{est_time_str}</strong></span><span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span></div>'
 
-    # Match rain peak text color to rating color (Red #e03131 for bad, Green #2b8a3e for good)
-    if is_expired:
-        rain_color = "opacity: 0.5;"
-    else:
-        rain_color = "color: #e03131;" if score < 3 else "color: #2b8a3e;"
+    rain_color = (
+        "opacity: 0.5;"
+        if is_expired
+        else ("color: #e03131;" if score < 3 else "color: #2b8a3e;")
+    )
 
     st.markdown(
         f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.68rem; font-weight:700; {rain_color}">{max_hourly_mm}mm peak</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
