@@ -42,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Slightly larger physics row, closer top margin)
+# 3. Optimized Screen Layout & CSS (Slot card borders made slightly more noticeable)
 st.markdown(
     f"""
     <style>
@@ -99,7 +99,7 @@ st.markdown(
     }}
     .slot-card {{
         background-color: rgba(128, 128, 128, 0.08);
-        border: 1px solid rgba(128, 128, 128, 0.2);
+        border: 1.5px solid rgba(128, 128, 128, 0.35);
         border-radius: 6px;
         padding: 6px 8px;
         margin-bottom: 4px;
