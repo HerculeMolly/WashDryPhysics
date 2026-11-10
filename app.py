@@ -15,8 +15,14 @@ update_str = now.strftime("updated %H%M %d-%b-%y").lower()
 
 if "fabric_mode" not in st.session_state:
     st.session_state.fabric_mode = "Normal"
+if "manual_lat" not in st.session_state:
+    st.session_state.manual_lat = None
+if "manual_lon" not in st.session_state:
+    st.session_state.manual_lon = None
+if "manual_city" not in st.session_state:
+    st.session_state.manual_city = None
 
-# 2. Automatic IP Geolocation (Real-time lookup)
+# 2. Geolocation (Auto-IP + Open-Meteo Geocoding Override)
 @st.cache_data(ttl=3600)
 def get_user_location():
     try:
@@ -29,7 +35,23 @@ def get_user_location():
         pass
     return 52.5785, -0.1285, "Peterborough"
 
-lat, lon, city_name = get_user_location()
+def search_geocoding(query):
+    try:
+        url = f"https://geocoding-api.open-meteo.com/v1/search?name={query}&count=1"
+        res = requests.get(url, timeout=3)
+        data = res.json()
+        if "results" in data and len(data["results"]) > 0:
+            r = data["results"][0]
+            return r["latitude"], r["longitude"], r.get("name", query)
+    except Exception:
+        pass
+    return None, None, None
+
+# Resolve active coordinates
+if st.session_state.manual_lat is not None:
+    lat, lon, city_name = st.session_state.manual_lat, st.session_state.manual_lon, st.session_state.manual_city
+else:
+    lat, lon, city_name = get_user_location()
 
 # 3. Optimized Screen Layout & CSS (Compressed vertical footprints to fit shorter screens)
 st.markdown(
@@ -418,13 +440,35 @@ st.radio(
     label_visibility="collapsed",
 )
 
-# 6. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
-with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
+# 6. Integrated Microclimate & Location Override Expander
+with st.expander("🌤️ Drying Guide & Location Settings"):
+    st.markdown("### 📍 Manual Location Override")
+    loc_query = st.text_input("Search town or city", placeholder="e.g. Whittlesey, Peterborough", key="loc_search_input")
+    
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if st.button("Set Location", use_container_width=True):
+            if loc_query:
+                f_lat, f_lon, f_city = search_geocoding(loc_query)
+                if f_lat:
+                    st.session_state.manual_lat = f_lat
+                    st.session_state.manual_lon = f_lon
+                    st.session_state.manual_city = f_city
+                    st.rerun()
+                else:
+                    st.error("Location not found.")
+    with col_b:
+        if st.session_state.manual_lat is not None:
+            if st.button("Reset to Auto-IP", use_container_width=True):
+                st.session_state.manual_lat = None
+                st.session_state.manual_lon = None
+                st.session_state.manual_city = None
+                st.rerun()
+
     st.markdown(
         """
-Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.
-
 ---
+Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.
 
 ### 1. Garden Layout (The 20–30% Swing)
 *Physics view: Boundary-layer decoupling & thermal mass radiation.*
