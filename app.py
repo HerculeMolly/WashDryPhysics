@@ -42,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Slightly larger metric values without wrapping)
+# 3. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
@@ -291,20 +291,25 @@ wind_speeds = hourly["wind_speed_10m"]
 solar_rads = hourly.get("direct_radiation", [0] * len(times))
 
 
-def get_drying_score(temp, hum, rain_prob, wind, peak_mm):
-    score = 3
-    if temp > 18:
-        score += 1
-    elif temp < 10:
-        score -= 1
-    if hum < 60:
-        score += 1
-    elif hum > 85:
-        score -= 1
+# Hybrid Scoring Engine (Physics-driven base score + safety heuristic guardrails)
+def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum):
+    if evap > 0.40:
+        score = 5
+    elif evap > 0.30:
+        score = 4
+    elif evap > 0.20:
+        score = 3
+    elif evap > 0.10:
+        score = 2
+    else:
+        score = 1
+        
+    # Heuristic guardrails for precipitation threat and air saturation
     if rain_prob > 40 or peak_mm > 0.4:
-        score -= 2
-    if wind > 8:
-        score += 1
+        score = min(score, 2)
+    if hum > 88:
+        score = min(score, 2)
+        
     return max(1, min(5, score))
 
 
@@ -398,9 +403,7 @@ for target_dt, block_label, block_hours in target_blocks:
         badge_html = "<div class='rating-badge rating-expired'>EXPIRED</div>"
         physics_html = ""
     else:
-        score = get_drying_score(
-            eval_temp, eval_hum, eval_rain, eval_wind, max_hourly_mm
-        )
+        score = get_hybrid_drying_score(evap_rate, eval_rain, max_hourly_mm, eval_hum)
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
