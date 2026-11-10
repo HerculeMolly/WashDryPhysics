@@ -8,7 +8,7 @@ import streamlit as st
 
 # 1. Page Configuration & Branding
 st.set_page_config(
-    page_title="WashDryPhysics — Outdoor Drying Index", page_icon="🧺", layout="centered"
+    page_title="WashDry — Outdoor Drying Index", page_icon="🧺", layout="centered"
 )
 
 logo_base64 = ""
@@ -53,13 +53,6 @@ st.markdown(
         padding-bottom: 0.5rem;
         max-width: 600px;
         margin: 0 auto;
-    }}
-    .washdry-header {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1px;
-        padding: 0 2px;
     }}
     .update-stamp {{
         font-size: 0.55rem;
@@ -137,13 +130,6 @@ st.markdown(
         border-top: 1px dashed rgba(128, 128, 128, 0.2);
         opacity: 0.85;
     }}
-    .streamlit-expanderHeader {{
-        background-color: rgba(128, 128, 128, 0.08);
-        border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: 6px;
-        font-size: 0.78rem !important;
-        font-weight: 700 !important;
-    }}
     .footer-container {{
         display: flex;
         justify-content: space-between;
@@ -190,7 +176,6 @@ st.markdown(
 
     @media (min-width: 768px) {{
         .block-container {{ max-width: 768px !important; padding-top: 1rem; }}
-        .washdry-header h1 {{ font-size: 1.6rem !important; }}
         .slot-card {{ padding: 8px 12px; margin-bottom: 6px; }}
         .slot-title {{ font-size: 0.95rem !important; }}
         .rating-badge {{ font-size: 0.7rem !important; padding: 3px 7px; }}
@@ -207,12 +192,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Clean Header Row
+# 4. Clean Header Row (Title updated back to WashDry)
 col_title, col_loc = st.columns([2, 1])
 
 with col_title:
     st.markdown(
-        '<h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDryPhysics</h1>',
+        '<h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1;">WashDry</h1>',
         unsafe_allow_html=True,
     )
 
@@ -223,6 +208,25 @@ with col_loc:
     )
 
 st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
+
+# 5. Fabric Filter Buttons (Interactive Load Selector)
+fabric_mode = st.radio(
+    "Load Type",
+    ["👕 Normal Wash", "⚡ Light / Synthetics", "👖 Heavy (Towels / Jeans)"],
+    horizontal=True,
+    label_visibility="collapsed",
+)
+
+# Multipliers for drying speed based on selected fabric
+if "Light" in fabric_mode:
+    fabric_multiplier = 1.3  # Dries faster
+    fabric_label_tag = "Light Load"
+elif "Heavy" in fabric_mode:
+    fabric_multiplier = 0.75  # Takes longer
+    fabric_label_tag = "Heavy Load"
+else:
+    fabric_multiplier = 1.0  # Standard baseline
+    fabric_label_tag = "Normal Wash"
 
 
 @st.cache_data(ttl=1800)
@@ -340,7 +344,9 @@ for target_dt, block_label, block_hours in target_blocks:
     es = 0.61078 * math.exp((17.27 * eval_temp) / (eval_temp + 237.3))
     ea = es * (eval_hum / 100.0)
     vpd = max(0.0, es - ea)
-    evap_rate = (0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)
+    
+    # Apply fabric multiplier to evaporation rate calculation
+    evap_rate = ((0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)) * fabric_multiplier
 
     if evap_rate > 0.4:
         est_hours = round(max(1.5, 3.5 - evap_rate * 2), 1)
@@ -374,7 +380,7 @@ for target_dt, block_label, block_hours in target_blocks:
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
-        physics_html = f'<div class="physics-row"><span>⚡ Physics Est. Time: <strong>{est_time_str}</strong></span><span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span></div>'
+        physics_html = f'<div class="physics-row"><span>⚡ {fabric_label_tag}: <strong>{est_time_str}</strong></span><span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span></div>'
 
     rain_color = (
         "opacity: 0.5;"
@@ -387,7 +393,7 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
-# 5. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
+# 6. Integrated Microclimate & Fabric Guide Expander (Native Markdown)
 with st.expander("🌤️ Drying Guide: Microclimates & Fabric Weight"):
     st.markdown(
         """
@@ -411,7 +417,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 6. Footer Branding
+# 7. Footer Branding
 logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "logo.png"
 
 st.markdown(
