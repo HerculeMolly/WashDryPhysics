@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS
+# 3. Optimized Screen Layout & CSS (Enlarged footer branding text)
 st.markdown(
     f"""
     <style>
@@ -169,19 +169,19 @@ st.markdown(
     .brand-text {{
         display: flex;
         flex-direction: column;
-        line-height: 1.15;
+        line-height: 1.2;
         text-align: right;
     }}
     .brand-name {{
         text-decoration: none;
         color: inherit;
         font-weight: 700;
-        font-size: 0.78rem;
+        font-size: 0.92rem;
     }}
     .brand-sub {{
-        font-size: 0.6rem;
-        opacity: 0.7;
-        font-weight: 500;
+        font-size: 0.72rem;
+        opacity: 0.8;
+        font-weight: 600;
     }}
     .instant-loader {{
         text-align: center;
@@ -200,8 +200,8 @@ st.markdown(
         .metric-label {{ font-size: 0.6rem !important; }}
         .metric-val {{ font-size: 0.88rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
-        .brand-name {{ font-size: 0.82rem !important; }}
-        .brand-sub {{ font-size: 0.65rem !important; }}
+        .brand-name {{ font-size: 0.98rem !important; }}
+        .brand-sub {{ font-size: 0.78rem !important; }}
     }}
     </style>
 """,
@@ -438,7 +438,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Buy Coffee on left, Hercule Molly woodcraft on right)
+# 7. Footer Branding (Buy Coffee on left, larger Hercule Molly branding on right)
 st.markdown(
     """
     <div class="footer-container">
