@@ -191,10 +191,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Compact Header Layout with 3 Inline Fabric Buttons
-col_title, col_btn1, col_btn2, col_btn3, col_loc = st.columns(
-    [1.2, 0.8, 0.8, 0.8, 1.1], vertical_alignment="center"
-)
+# 3. Clean Header Row (Title + Location)
+col_title, col_loc = st.columns([2, 1], vertical_alignment="center")
 
 with col_title:
     st.markdown(
@@ -202,7 +200,21 @@ with col_title:
         unsafe_allow_html=True,
     )
 
-with col_btn1:
+with col_loc:
+    st.markdown(
+        '<div style="text-align: right; font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 P\'borough</div>',
+        unsafe_allow_html=True,
+    )
+
+st.markdown(
+    f'<div class="update-stamp" style="margin-bottom: 6px;">{update_str}</div>',
+    unsafe_allow_html=True,
+)
+
+# 4. Dedicated Fabric Selector Row (Guaranteed full width on mobile)
+f_cols = st.columns(3, vertical_alignment="center")
+
+with f_cols[0]:
     if st.button(
         "Light",
         use_container_width=True,
@@ -215,7 +227,7 @@ with col_btn1:
         st.session_state.fabric_mode = "Light"
         st.rerun()
 
-with col_btn2:
+with f_cols[1]:
     if st.button(
         "👕",
         use_container_width=True,
@@ -226,7 +238,7 @@ with col_btn2:
         st.session_state.fabric_mode = "Norm"
         st.rerun()
 
-with col_btn3:
+with f_cols[2]:
     if st.button(
         "Heavy",
         use_container_width=True,
@@ -239,13 +251,9 @@ with col_btn3:
         st.session_state.fabric_mode = "Heavy"
         st.rerun()
 
-with col_loc:
-    st.markdown(
-        '<div style="text-align: right; font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 P\'borough</div>',
-        unsafe_allow_html=True,
-    )
-
-st.markdown(f'<div class="update-stamp">{update_str}</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div style="margin-bottom: 4px;"></div>', unsafe_allow_html=True
+)
 
 # Fabric Multiplier Mapping based on active button state
 fabric_multipliers = {"Light": 1.0, "Norm": 1.3, "Heavy": 1.7}
