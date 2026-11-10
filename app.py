@@ -42,7 +42,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Slot card borders made slightly more noticeable)
+# 3. Optimized Screen Layout & CSS (Slightly larger metric values without wrapping)
 st.markdown(
     f"""
     <style>
@@ -151,9 +151,10 @@ st.markdown(
         opacity: 0.7;
     }}
     .metric-val {{
-        font-size: 0.72rem;
+        font-size: 0.77rem;
         font-weight: 700;
         line-height: 1.15;
+        white-space: nowrap;
     }}
     .physics-row {{
         display: flex;
@@ -216,7 +217,7 @@ st.markdown(
         .rating-badge {{ font-size: 0.7rem !important; padding: 3px 7px; }}
         .rating-score {{ font-size: 1rem !important; }}
         .metric-label {{ font-size: 0.6rem !important; }}
-        .metric-val {{ font-size: 0.85rem !important; }}
+        .metric-val {{ font-size: 0.88rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
         .brand-logo {{ width: 32px !important; height: 32px !important; }}
         .brand-name {{ font-size: 0.82rem !important; }}
