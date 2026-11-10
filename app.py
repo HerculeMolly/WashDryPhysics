@@ -33,7 +33,7 @@ def get_user_location():
 
 lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS
+# 3. Optimized Screen Layout & CSS (Increased metric labels & values size further)
 st.markdown(
     f"""
     <style>
@@ -138,15 +138,15 @@ st.markdown(
         padding: 0 2px;
     }}
     .metric-label {{
-        font-size: 0.62rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 1px;
-        font-weight: 700;
-        opacity: 0.75;
+        font-weight: 800;
+        opacity: 0.8;
     }}
     .metric-val {{
-        font-size: 0.86rem;
+        font-size: 0.95rem;
         font-weight: 700;
         line-height: 1.15;
         white-space: nowrap;
@@ -202,8 +202,8 @@ st.markdown(
         .rating-badge {{ font-size: 0.78rem !important; padding: 3px 7px; }}
         .rating-score {{ font-size: 1.1rem !important; }}
         .rating-text {{ font-size: 0.98rem !important; }}
-        .metric-label {{ font-size: 0.68rem !important; }}
-        .metric-val {{ font-size: 0.96rem !important; }}
+        .metric-label {{ font-size: 0.76rem !important; }}
+        .metric-val {{ font-size: 1.05rem !important; }}
         .footer-container {{ padding-top: 6px; margin-top: 8px; }}
         .brand-name {{ font-size: 0.98rem !important; }}
         .brand-sub {{ font-size: 0.78rem !important; }}
