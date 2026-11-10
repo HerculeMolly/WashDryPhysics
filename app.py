@@ -353,8 +353,14 @@ for target_dt, block_label, block_hours in target_blocks:
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> {label_text}</div>'
         physics_html = f'<div class="physics-row"><span>⚡ Physics Est. Time: <strong>{est_time_str}</strong></span><span style="opacity: 0.6;">VPD: {vpd:.2f} kPa</span></div>'
 
+    # Match rain peak text color to rating color (Red #e03131 for bad, Green #2b8a3e for good)
+    if is_expired:
+        rain_color = "opacity: 0.5;"
+    else:
+        rain_color = "color: #e03131;" if score < 3 else "color: #2b8a3e;"
+
     st.markdown(
-        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.68rem; font-weight:700;">{max_hourly_mm}mm peak</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
+        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 3px 0 5px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{max_rain_prob}%<br><span class="rain-subtext" style="font-size:0.68rem; font-weight:700; {rain_color}">{max_hourly_mm}mm peak</span></div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
         unsafe_allow_html=True,
     )
 
