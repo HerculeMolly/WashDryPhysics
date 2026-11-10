@@ -11,15 +11,6 @@ st.set_page_config(
     page_title="WashDry — Outdoor Drying Index", page_icon="🧺", layout="centered"
 )
 
-logo_base64 = ""
-logo_path = Path("logo.png")
-if logo_path.exists():
-    try:
-        with open(logo_path, "rb") as f:
-            logo_base64 = base64.b64encode(f.read()).decode()
-    except Exception:
-        pass
-
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
 update_str = now.strftime("%H%M %a %d-%b-%y").lower()
@@ -175,7 +166,7 @@ st.markdown(
         margin-top: 6px;
         margin-bottom: 10px;
     }}
-    .brand-left {{
+    .brand-text {{
         display: flex;
         flex-direction: column;
         line-height: 1.15;
@@ -433,7 +424,7 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
 ### 1. Garden Layout (The 20–30% Swing)
 *Physics view: Boundary-layer decoupling & thermal mass radiation.*
 * **The Slower Yard (Shelter Trap):** Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.
-* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a securely integrated solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
+* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
 
 ### 2. Fabric Density & Load Weight
 *Physics view: Internal moisture diffusion & falling-rate drying phases.*
@@ -446,18 +437,16 @@ Your app calculates a reliable regional baseline, but your backyard layout and w
         """
     )
 
-# 7. Footer Branding (Logo placeholder completely removed; text aligned cleanly)
+# 7. Footer Branding (Hercule Molly bottom-left)
 st.markdown(
     """
     <div class="footer-container">
-        <div class="brand-left">
-            <div class="brand-text">
-                <a href="https://herculemolly.co.uk" target="_blank" class="brand-name">Hercule Molly</a>
-                <span class="brand-sub">Quality Woodcraft Gifts &bull; Built with Streamlit</span>
-            </div>
+        <div class="brand-text">
+            <a href="https://herculemolly.co.uk" target="_blank" class="brand-name">Hercule Molly</a>
+            <span class="brand-sub">Quality Woodcraft Gifts</span>
         </div>
         <div>
-            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size:0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
+            <a href="https://buymeacoffee.com/herculemolly" target="_blank" style="text-decoration: none; background-color: #ffdd00; color: #000; padding: 3px 7px; border-radius: 6px; font-weight: 700; font-size: 0.72rem; white-space: nowrap;">☕ Buy me a coffee</a>
         </div>
     </div>
 """,
