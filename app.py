@@ -22,17 +22,10 @@ if "manual_lon" not in st.session_state:
 if "manual_city" not in st.session_state:
     st.session_state.manual_city = None
 
-# 2. Geolocation (Auto-IP + Open-Meteo Geocoding Override)
+# 2. Geolocation (Hardcoded Peterborough Default + Open-Meteo Geocoding Override)
 @st.cache_data(ttl=3600)
 def get_user_location():
-    try:
-        res = requests.get("https://ipapi.co/json/", timeout=3)
-        data = res.json()
-        if "latitude" in data and "longitude" in data:
-            city = data.get("city", "Local Area")
-            return data["latitude"], data["longitude"], city
-    except Exception:
-        pass
+    # Fixed default for local accuracy (avoids Streamlit server IP mismatch)
     return 52.5785, -0.1285, "Peterborough"
 
 # Resolve active coordinates
@@ -222,7 +215,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row: WashDry, Timestamp pulled directly adjacent with minimal gap
+# 4. Header Row
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
@@ -236,7 +229,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Determine multipliers based on session state fabric mode
+# Fabric mode multipliers
 if "Light" in st.session_state.fabric_mode:
     fabric_multiplier = 1.3
     fabric_label_tag = "Light Load"
@@ -285,7 +278,7 @@ wind_speeds = hourly["wind_speed_10m"]
 solar_rads = hourly.get("direct_radiation", [0] * len(times))
 
 
-# Hybrid Scoring Engine (Physics-driven base score + safety heuristic guardrails)
+# Hybrid Scoring Engine
 def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum):
     if evap > 0.40:
         score = 5
@@ -298,7 +291,6 @@ def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum):
     else:
         score = 1
         
-    # Heuristic guardrails for precipitation threat and air saturation
     if rain_prob > 40 or peak_mm > 0.4:
         score = min(score, 2)
     if hum > 88:
@@ -419,7 +411,7 @@ for target_dt, block_label, block_hours in target_blocks:
         unsafe_allow_html=True,
     )
 
-# 5. Fabric Pill Buttons (Strictly centered horizontally)
+# 5. Fabric Pill Buttons
 st.radio(
     "Load Type",
     ["Light", "Normal", "Heavy"],
@@ -456,7 +448,7 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
                     st.error("Search failed. Try again.")
     with col_b:
         if st.session_state.manual_lat is not None:
-            if st.button("Reset to Auto-IP", use_container_width=True):
+            if st.button("Reset to Default", use_container_width=True):
                 st.session_state.manual_lat = None
                 st.session_state.manual_lon = None
                 st.session_state.manual_city = None
@@ -501,4 +493,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
