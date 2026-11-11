@@ -278,24 +278,31 @@ wind_speeds = hourly["wind_speed_10m"]
 solar_rads = hourly.get("direct_radiation", [0] * len(times))
 
 
-# Hybrid Scoring Engine
-def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum):
-    if evap > 0.40:
+# Tetens-Aligned Scoring Engine with Thermal & Moisture Guardrails
+def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum, high_temp):
+    if evap > 0.45 and high_temp >= 16:
         score = 5
-    elif evap > 0.30:
+    elif evap > 0.32 and high_temp >= 12:
         score = 4
-    elif evap > 0.20:
+    elif evap > 0.18:
         score = 3
-    elif evap > 0.10:
+    elif evap > 0.08:
         score = 2
     else:
         score = 1
-        
-    if rain_prob > 40 or peak_mm > 0.4:
+
+    # Cold Temperature Caps
+    if high_temp < 12:
+        score = min(score, 3)
+    if high_temp < 6:
         score = min(score, 2)
-    if hum > 88:
+
+    # Precipitation & Saturation Guardrails
+    if rain_prob > 35 or peak_mm > 0.3:
         score = min(score, 2)
-        
+    if hum > 85:
+        score = min(score, 2)
+
     return max(1, min(5, score))
 
 
@@ -349,19 +356,23 @@ for target_dt, block_label, block_hours in target_blocks:
     avg_hum = round(sum(block_hums) / len(block_hums))
     max_rain_prob = max(block_rains)
     max_hourly_mm = round(max(block_mm), 1) if block_mm else 0.0
-    avg_wind = round((sum(block_winds) / len(block_winds)) * 0.65, 1)
+    
+    # Power-Law Wind Adjustment (Suburban roughness alpha = 0.25 -> (2/10)^0.25 ≈ 0.6687)
+    avg_wind_10m = sum(block_winds) / len(block_winds)
+    avg_wind = round(avg_wind_10m * ((2.0 / 10.0) ** 0.25), 1)
+    
     avg_solar = sum(block_solar) / len(block_solar)
 
     eval_temp = high_temp
     eval_hum = avg_hum
     eval_rain = max_rain_prob
-    eval_wind = avg_wind
 
+    # Tetens formula for Vapor Pressure Deficit (VPD)
     es = 0.61078 * math.exp((17.27 * eval_temp) / (eval_temp + 237.3))
     ea = es * (eval_hum / 100.0)
     vpd = max(0.0, es - ea)
     
-    evap_rate = ((0.05 + 0.08 * eval_wind) * vpd + (0.0002 * avg_solar)) * fabric_multiplier
+    evap_rate = ((0.05 + 0.08 * avg_wind) * vpd + (0.0002 * avg_solar)) * fabric_multiplier
 
     if evap_rate > 0.4:
         est_hours = round(max(1.5, 3.5 - evap_rate * 2), 1)
@@ -389,7 +400,7 @@ for target_dt, block_label, block_hours in target_blocks:
         badge_html = "<div class='rating-badge rating-expired'>EXPIRED</div>"
         physics_html = ""
     else:
-        score = get_hybrid_drying_score(evap_rate, eval_rain, max_hourly_mm, eval_hum)
+        score = get_hybrid_drying_score(evap_rate, eval_rain, max_hourly_mm, eval_hum, high_temp)
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> <span class="rating-text">{label_text}</span></div>'
