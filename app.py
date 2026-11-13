@@ -17,18 +17,24 @@ update_str = now.strftime("updated %H%M %d-%b-%y").lower()
 if "fabric_mode" not in st.session_state:
     st.session_state.fabric_mode = "Normal"
 
-# 2. Geolocation & Persistent URL Query State Handling
-# Check if location parameters are already stored in the URL (persists via Home Screen shortcuts & refreshes)
+# 2. Geolocation & Persistent State (URL Query + Session State fallback)
 if "lat" in st.query_params and "lon" in st.query_params:
     try:
-        lat = float(st.query_params["lat"])
-        lon = float(st.query_params["lon"])
-        city_name = st.query_params.get("city", "Custom Location")
+        st.session_state.lat = float(st.query_params["lat"])
+        st.session_state.lon = float(st.query_params["lon"])
+        st.session_state.city = st.query_params.get("city", "Custom Location")
     except Exception:
-        lat, lon, city_name = 52.5785, -0.1285, "Peterborough"
-else:
-    # Default baseline location
-    lat, lon, city_name = 52.5785, -0.1285, "Peterborough"
+        pass
+
+# Initialize session state with Peterborough default if not set
+if "lat" not in st.session_state:
+    st.session_state.lat = 52.5785
+    st.session_state.lon = -0.1285
+    st.session_state.city = "Peterborough"
+
+lat = st.session_state.lat
+lon = st.session_state.lon
+city_name = st.session_state.city
 
 # 3. Optimized Screen Layout & CSS (Compressed vertical footprints & Visual Weight Distinction)
 st.markdown(
@@ -370,7 +376,6 @@ for target_dt, block_label, block_hours in target_blocks:
     else:
         day_label = dt_slot.strftime("%A").upper()
 
-    # Visual Weight distinction for Today vs Tomorrow
     if is_expired:
         card_class = "slot-card expired-card"
     else:
@@ -429,7 +434,11 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
                     district = r.get("admin_district", query_clean)
                     resolved_city = f"{district} ({query_clean})"
                     
-                    # Save to URL query parameters so it persists on reload & home screen shortcuts
+                    # Store in session state and URL query params for persistent memory
+                    st.session_state.lat = r["latitude"]
+                    st.session_state.lon = r["longitude"]
+                    st.session_state.city = resolved_city
+                    
                     st.query_params["lat"] = str(r["latitude"])
                     st.query_params["lon"] = str(r["longitude"])
                     st.query_params["city"] = resolved_city
@@ -441,6 +450,10 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
                         r = data_out["result"]
                         resolved_city = f"Area {query_clean}"
                         
+                        st.session_state.lat = r["latitude"]
+                        st.session_state.lon = r["longitude"]
+                        st.session_state.city = resolved_city
+                        
                         st.query_params["lat"] = str(r["latitude"])
                         st.query_params["lon"] = str(r["longitude"])
                         st.query_params["city"] = resolved_city
@@ -450,13 +463,15 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
             except Exception:
                 st.error("Search failed. Check connection and try again.")
 
-    if "lat" in st.query_params:
+    if st.session_state.city != "Peterborough":
         col_reset1, col_reset2 = st.columns([2, 1])
         with col_reset1:
-            st.success(f"Active location: **{city_name}**")
+            st.success(f"Active location: **{st.session_state.city}**")
         with col_reset2:
             if st.button("Reset Default", use_container_width=True):
-                # Clear query parameters to revert back to default baseline
+                st.session_state.lat = 52.5785
+                st.session_state.lon = -0.1285
+                st.session_state.city = "Peterborough"
                 st.query_params.clear()
                 st.rerun()
 
@@ -485,4 +500,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
