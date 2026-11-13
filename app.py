@@ -238,10 +238,11 @@ else:
 
 @st.cache_data(ttl=1800)
 def fetch_weather_data(latitude, longitude):
+    # Explicitly requesting the UK Met Office 2km UKV model (`ukmo_uk_deterministic_2km`)
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
         "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,direct_radiation"
-        "&timezone=Europe/London&forecast_days=2"
+        "&timezone=Europe/London&forecast_days=2&models=ukmo_uk_deterministic_2km"
     )
     try:
         response = requests.get(url, timeout=10)
@@ -252,7 +253,7 @@ def fetch_weather_data(latitude, longitude):
 
 loading_placeholder = st.empty()
 loading_placeholder.markdown(
-    '<div class="instant-loader">Fetching latest weather data...</div>',
+    '<div class="instant-loader">Fetching latest weather data (Met Office UKV)...</div>',
     unsafe_allow_html=True,
 )
 
