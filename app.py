@@ -434,7 +434,6 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
                     district = r.get("admin_district", query_clean)
                     resolved_city = f"{district} ({query_clean})"
                     
-                    # Store in session state and URL query params for persistent memory
                     st.session_state.lat = r["latitude"]
                     st.session_state.lon = r["longitude"]
                     st.session_state.city = resolved_city
@@ -478,10 +477,21 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
     st.markdown(
         """
 ---
-### Garden Layout & Fabric Tips
-* **Sheltered Yards:** Walls and fences trap stagnant air; drying may take longer than indicated.
-* **Sun-Traps:** Patios and brick work radiate warmth, accelerating evaporation.
-* **Heavy Loads:** Towels and jeans hold deep internal moisture requiring extra time.
+Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.
+
+### 1. Garden Layout (The 20–30% Swing)
+*Physics view: Boundary-layer decoupling & thermal mass radiation.*
+* **The Slower Yard (Shelter Trap):** Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.
+* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
+
+### 2. Fabric Density & Load Weight
+*Physics view: Internal moisture diffusion & falling-rate drying phases.*
+* **Light Loads (Synthetics / Shirts):** Water sits mostly on surface fibers and evaporates rapidly.
+* **Normal Loads (Mixed Everyday Wash):** Standard cotton tees and garments take moderate time.
+* **Heavy Loads (Jeans, Hoodies & Towels):** Dense fibers trap moisture deep inside, requiring significantly more thermal energy and time. Always mentally add extra time for thick cottons!
+
+---
+**Quick Rule of Thumb:** Trust "Bad" and "Perfect" forecasts implicitly (rain and high humidity beat everything). For "Steady" or "Fair" days, mentally adjust your expectations: round up for heavy towels in a shady yard, or round down for light sportswear in an open sun-trap!
         """
     )
 
