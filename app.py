@@ -69,7 +69,7 @@ st.info(
 )
 
 
-tz = ZoneInfo("Europe/London")
+now = datetime.datetime.now(tz)
 now = datetime.now(tz)
 update_str = now.strftime("updated %H%M %d-%b-%y").lower()
 
