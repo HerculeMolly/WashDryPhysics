@@ -213,17 +213,25 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row & Concise Model Notice (Single-line fit)
+# 4. Header Row with Stacked Left Info & Top-Right Logo Placeholder
+# Note: Replace 'LOGO_URL_OR_PATH' with your hosted image URL or local asset filename
+logo_src = "LOGO_URL_OR_PATH" 
+
 st.markdown(
     f"""
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
-        <div style="display: flex; align-items: baseline; gap: 2px;">
-            <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
-            <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+        <div>
+            <div style="display: flex; align-items: baseline; gap: 4px;">
+                <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
+                <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
+            </div>
+            <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
+            <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; white-space: nowrap;">Global weather model (may differ from Met Office app)</div>
         </div>
-        <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
+        <div>
+            <img src="{logo_src}" style="height: 38px; width: 38px; border-radius: 50%; object-fit: cover;" alt="Logo">
+        </div>
     </div>
-    <div style="font-size: 0.66rem; opacity: 0.55; margin-bottom: 4px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Global weather model (may differ slightly from Met Office local app)</div>
 """,
     unsafe_allow_html=True,
 )
