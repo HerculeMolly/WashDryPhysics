@@ -9,6 +9,31 @@ import streamlit as st
 st.set_page_config(
     page_title="WashDry — Outdoor Drying Index", page_icon="🧺", layout="centered"
 )
+st.markdown(
+    """
+    <style>
+    /* Force header columns to stay side-by-side on mobile */
+    @media (max-width: 640px) {
+        [data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+        }
+        [data-testid="stColumn"] {
+            width: auto !important;
+            flex: 1 !important;
+            min-width: unset !important;
+        }
+        /* Shrink the logo image on mobile so it fits the right-hand gap */
+        [data-testid="stColumn"] img {
+            max-width: 55px !important;
+            height: auto !important;
+        }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
