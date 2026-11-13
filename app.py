@@ -1,3 +1,4 @@
+
 from datetime import datetime, timedelta
 import math
 import re
@@ -255,7 +256,7 @@ with col_head:
             <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
         <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
-        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; line-height: 1.2;">Global weather model (may differ from Met Office app)</div>
+        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; line-height: 1.2;">Global weather model (may differ from Met Office local app)</div>
     """,
         unsafe_allow_html=True,
     )
