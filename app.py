@@ -68,6 +68,13 @@ st.info(
     "Your weather and drying physics calculation modules run in this section."
 )
 
+from zoneinfo import ZoneInfo
+
+# Define the timezone first
+tz = ZoneInfo("Europe/London")
+
+# Then call datetime with the timezone
+now = datetime.datetime.now(tz)
 
 now = datetime.datetime.now(tz)
 now = datetime.now(tz)
