@@ -231,7 +231,7 @@ with col_head:
 
 with col_logo:
     try:
-        st.image("logo.jpg", width=44)
+        st.image("logo.png", width=44)
     except Exception:
         st.markdown(
             '<div style="border: 2px dashed rgba(128,128,128,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; opacity: 0.6;">Logo</div>',
