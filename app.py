@@ -12,27 +12,34 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Force header columns to stay side-by-side on mobile */
-    @media (max-width: 640px) {
-        [data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-        }
-        [data-testid="stColumn"] {
-            width: auto !important;
-            flex: 1 !important;
-            min-width: unset !important;
-        }
-        /* Shrink the logo image on mobile so it fits the right-hand gap */
-        [data-testid="stColumn"] img {
-            max-width: 55px !important;
-            height: auto !important;
-        }
+    /* Force header columns to span full width and space apart */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+    
+    /* Target the right-hand column (logo) and push it flush right */
+    [data-testid="stColumn"]:nth-of-type(2) {
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        padding-right: 0px !important;
+    }
+
+    /* Scale logo size nicely for mobile */
+    [data-testid="stColumn"] img {
+        max-width: 55px !important;
+        height: auto !important;
+        margin-right: 0px !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
+)
+
 )
 
 tz = ZoneInfo("Europe/London")
