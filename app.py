@@ -213,16 +213,17 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row
+# 4. Header Row & Concise Model Notice
 st.markdown(
     f"""
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
         <div style="display: flex; align-items: baseline; gap: 2px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
             <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
         <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
     </div>
+    <div style="font-size: 0.66rem; opacity: 0.55; margin-bottom: 4px; font-weight: 500;">Baseline: Global weather model (may differ slightly from Met Office local app)</div>
 """,
     unsafe_allow_html=True,
 )
@@ -238,11 +239,10 @@ else:
 
 @st.cache_data(ttl=1800)
 def fetch_weather_data(latitude, longitude):
-    # Explicitly requesting the UK Met Office 2km UKV model (`ukmo_uk_deterministic_2km`)
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
         "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,direct_radiation"
-        "&timezone=Europe/London&forecast_days=2&models=ukmo_uk_deterministic_2km"
+        "&timezone=Europe/London&forecast_days=2"
     )
     try:
         response = requests.get(url, timeout=10)
@@ -253,7 +253,7 @@ def fetch_weather_data(latitude, longitude):
 
 loading_placeholder = st.empty()
 loading_placeholder.markdown(
-    '<div class="instant-loader">Fetching latest weather data (Met Office UKV)...</div>',
+    '<div class="instant-loader">Fetching latest weather data...</div>',
     unsafe_allow_html=True,
 )
 
