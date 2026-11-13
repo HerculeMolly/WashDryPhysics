@@ -239,9 +239,10 @@ else:
 
 @st.cache_data(ttl=1800)
 def fetch_weather_data(latitude, longitude):
+    # Using universal shortwave_radiation to ensure full compatibility with default ensemble
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
-        "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,direct_radiation"
+        "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,shortwave_radiation"
         "&timezone=Europe/London&forecast_days=2"
     )
     try:
@@ -271,7 +272,7 @@ humidities = hourly["relative_humidity_2m"]
 precip_probs = hourly["precipitation_probability"]
 precips = hourly["precipitation"]
 wind_speeds = hourly["wind_speed_10m"]
-solar_rads = hourly.get("direct_radiation", [0] * len(times))
+solar_rads = hourly.get("shortwave_radiation", [0] * len(times))
 
 
 # Tetens-Aligned Scoring Engine
@@ -511,4 +512,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
