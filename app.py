@@ -213,28 +213,30 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row with Stacked Left Info & Top-Right Logo Placeholder
-# Note: Replace 'LOGO_URL_OR_PATH' with your hosted image URL or local asset filename
-logo_src = "LOGO_URL_OR_PATH" 
+# 4. Header Row with Native Columns (Left: Stacked Info, Right: logo.jpg)
+col_head, col_logo = st.columns([5, 1])
 
-st.markdown(
-    f"""
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-        <div>
-            <div style="display: flex; align-items: baseline; gap: 4px;">
-                <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
-                <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
-            </div>
-            <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
-            <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; white-space: nowrap;">Global weather model (may differ from Met Office app)</div>
+with col_head:
+    st.markdown(
+        f"""
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+            <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
+            <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
-        <div>
-            <img src="{logo_src}" style="height: 38px; width: 38px; border-radius: 50%; object-fit: cover;" alt="Logo">
-        </div>
-    </div>
-""",
-    unsafe_allow_html=True,
-)
+        <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
+        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; white-space: nowrap;">Global weather model (may differ from Met Office app)</div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+with col_logo:
+    try:
+        st.image("logo.jpg", width=44)
+    except Exception:
+        st.markdown(
+            '<div style="border: 2px dashed rgba(128,128,128,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; opacity: 0.6;">Logo</div>',
+            unsafe_allow_html=True,
+        )
 
 # Fabric mode multipliers
 if "Light" in st.session_state.fabric_mode:
