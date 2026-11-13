@@ -1,6 +1,6 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
+import datetime
 import math
+from zoneinfo import ZoneInfo
 import pandas as pd
 import requests
 import streamlit as st
@@ -8,7 +8,11 @@ import streamlit as st
 # ==========================================
 # 1. PAGE CONFIGURATION
 # ==========================================
-st.set_page_config(page_title="WashDryPhysics", page_icon="🌤️", layout="wide")
+st.set_page_config(
+    page_title="WashDryPhysics",
+    page_icon="🌤️",
+    layout="wide"
+)
 
 # ==========================================
 # 2. RESPONSIVE HEADER & MOBILE CSS
@@ -58,23 +62,11 @@ with col2:
     st.image("logo.png")
 
 # ==========================================
-# 4. YOUR APP LOGIC & CALCULATIONS GO HERE
+# 4. TIMEZONE & TIME SETUP
 # ==========================================
-# (Insert your weather API calls, vapor pressure deficit formulas, 
-# sliders, metrics, and dataframes below this line)
-
-st.write("---")
-st.info(
-    "Your weather and drying physics calculation modules run in this section."
-)
-
-from zoneinfo import ZoneInfo
-
-# Define the timezone first
 tz = ZoneInfo("Europe/London")
-
-# Then call datetime with the timezone
 now = datetime.datetime.now(tz)
+
 
 now = datetime.datetime.now(tz)
 now = datetime.now(tz)
