@@ -26,7 +26,6 @@ if "lat" in st.query_params and "lon" in st.query_params:
     except Exception:
         pass
 
-# Initialize session state with Peterborough default if not set
 if "lat" not in st.session_state:
     st.session_state.lat = 52.5785
     st.session_state.lon = -0.1285
@@ -36,7 +35,7 @@ lat = st.session_state.lat
 lon = st.session_state.lon
 city_name = st.session_state.city
 
-# 3. Optimized Screen Layout & CSS (Compressed vertical footprints & Visual Weight Distinction)
+# 3. Optimized Screen Layout & CSS
 st.markdown(
     f"""
     <style>
@@ -52,36 +51,30 @@ st.markdown(
         margin: 0 auto;
     }}
     
-    /* Force top-level header row to never wrap on iPhone and pin logo flush right */
-    [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"] {{
+    /* Force header columns to stay side-by-side and pin logo flush right */
+    [data-testid="stHorizontalBlock"] {{
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
         justify-content: space-between !important;
         width: 100% !important;
-        gap: 4px !important;
     }}
-    [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-of-type(1) {{
+    [data-testid="stColumn"]:nth-of-type(1) {{
         flex: 1 1 auto !important;
         width: auto !important;
         min-width: 0 !important;
     }}
-    [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-of-type(2) {{
-        flex: 0 0 48px !important;
-        width: 48px !important;
-        min-width: 48px !important;
+    [data-testid="stColumn"]:nth-of-type(2) {{
+        flex: 0 0 50px !important;
+        width: 50px !important;
+        min-width: 50px !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
         padding-right: 0px !important;
     }}
-    [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"] [data-testid="stImage"] {{
-        display: flex !important;
-        justify-content: flex-end !important;
-        width: 100% !important;
-    }}
-    [data-testid="stVerticalBlock"] > [data-testid="stHorizontalBlock"] img {{
+    [data-testid="stColumn"] img {{
         max-width: 44px !important;
         width: 44px !important;
         height: auto !important;
@@ -273,31 +266,6 @@ with col_logo:
     except Exception:
         st.markdown(
             '<div style="border: 2px dashed rgba(128,128,128,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; opacity: 0.6; margin-left: auto;">Logo</div>',
-            unsafe_allow_html=True,
-        )
-
-# 4. Header Row with Native Columns (Left: Stacked Info, Right: logo.png)
-col_head, col_logo = st.columns([5, 1])
-
-with col_head:
-    st.markdown(
-        f"""
-        <div style="display: flex; align-items: baseline; gap: 4px;">
-            <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
-            <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
-        </div>
-        <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
-        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; white-space: nowrap;">Global weather model (may differ from Met Office app)</div>
-    """,
-        unsafe_allow_html=True,
-    )
-
-with col_logo:
-    try:
-        st.image("logo.png", width=44)
-    except Exception:
-        st.markdown(
-            '<div style="border: 2px dashed rgba(128,128,128,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; opacity: 0.6;">Logo</div>',
             unsafe_allow_html=True,
         )
 
