@@ -51,6 +51,33 @@ st.markdown(
         max-width: 600px;
         margin: 0 auto;
     }}
+    
+    /* Force header and horizontal blocks to stay side-by-side and pin logo flush right */
+    [data-testid="stHorizontalBlock"] {{
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }}
+    [data-testid="stColumn"]:nth-of-type(1) {{
+        flex: 5 !important;
+        width: auto !important;
+    }}
+    [data-testid="stColumn"]:nth-of-type(2) {{
+        flex: 1 !important;
+        width: auto !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        padding-right: 0px !important;
+    }}
+    [data-testid="stColumn"] img {{
+        max-width: 44px !important;
+        height: auto !important;
+        margin-right: 0px !important;
+    }}
+
     .stExpander {{
         margin-top: -6px !important;
         margin-bottom: -12px !important;
