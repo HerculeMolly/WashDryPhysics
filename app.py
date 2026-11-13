@@ -16,25 +16,21 @@ update_str = now.strftime("updated %H%M %d-%b-%y").lower()
 
 if "fabric_mode" not in st.session_state:
     st.session_state.fabric_mode = "Normal"
-if "manual_lat" not in st.session_state:
-    st.session_state.manual_lat = None
-if "manual_lon" not in st.session_state:
-    st.session_state.manual_lon = None
-if "manual_city" not in st.session_state:
-    st.session_state.manual_city = None
 
-# 2. Geolocation (Hardcoded Peterborough Default + UK Postcode Lookup)
-@st.cache_data(ttl=3600)
-def get_user_location():
-    return 52.5785, -0.1285, "Peterborough"
-
-# Resolve active coordinates
-if st.session_state.manual_lat is not None:
-    lat, lon, city_name = st.session_state.manual_lat, st.session_state.manual_lon, st.session_state.manual_city
+# 2. Geolocation & Persistent URL Query State Handling
+# Check if location parameters are already stored in the URL (persists via Home Screen shortcuts & refreshes)
+if "lat" in st.query_params and "lon" in st.query_params:
+    try:
+        lat = float(st.query_params["lat"])
+        lon = float(st.query_params["lon"])
+        city_name = st.query_params.get("city", "Custom Location")
+    except Exception:
+        lat, lon, city_name = 52.5785, -0.1285, "Peterborough"
 else:
-    lat, lon, city_name = get_user_location()
+    # Default baseline location
+    lat, lon, city_name = 52.5785, -0.1285, "Peterborough"
 
-# 3. Optimized Screen Layout & CSS (Compressed vertical footprints)
+# 3. Optimized Screen Layout & CSS (Compressed vertical footprints & Visual Weight Distinction)
 st.markdown(
     f"""
     <style>
@@ -92,13 +88,19 @@ st.markdown(
     }}
     .slot-card {{
         background-color: rgba(128, 128, 128, 0.08);
-        border: 1.5px solid rgba(128, 128, 128, 0.35);
         border-radius: 6px;
         padding: 4px 6px;
         margin-bottom: 3px;
     }}
+    .today-card {{
+        border: 2px solid rgba(128, 128, 128, 0.65);
+    }}
+    .tomorrow-card {{
+        border: 1px solid rgba(128, 128, 128, 0.25);
+    }}
     .expired-card {{
         opacity: 0.5;
+        border: 1px solid rgba(128, 128, 128, 0.2) !important;
     }}
     .rating-badge {{
         font-size: 0.72rem;
@@ -368,7 +370,12 @@ for target_dt, block_label, block_hours in target_blocks:
     else:
         day_label = dt_slot.strftime("%A").upper()
 
-    card_class = "slot-card expired-card" if is_expired else "slot-card"
+    # Visual Weight distinction for Today vs Tomorrow
+    if is_expired:
+        card_class = "slot-card expired-card"
+    else:
+        weight_class = "today-card" if day_label == "TODAY" else "tomorrow-card"
+        card_class = f"slot-card {weight_class}"
 
     if is_expired:
         badge_html = "<div class='rating-badge rating-expired'>EXPIRED</div>"
@@ -414,41 +421,43 @@ with st.expander("🌤️ Drying Guide & Location Settings"):
         if submitted and postcode_query:
             query_clean = postcode_query.strip().upper()
             try:
-                # Try full postcode lookup first
                 res = requests.get(f"https://api.postcodes.io/postcodes/{query_clean}", timeout=3)
                 data = res.json()
                 
                 if res.status_code == 200 and data.get("result"):
                     r = data["result"]
                     district = r.get("admin_district", query_clean)
-                    st.session_state.manual_lat = r["latitude"]
-                    st.session_state.manual_lon = r["longitude"]
-                    st.session_state.manual_city = f"{district} ({query_clean})"
+                    resolved_city = f"{district} ({query_clean})"
+                    
+                    # Save to URL query parameters so it persists on reload & home screen shortcuts
+                    st.query_params["lat"] = str(r["latitude"])
+                    st.query_params["lon"] = str(r["longitude"])
+                    st.query_params["city"] = resolved_city
                     st.rerun()
                 else:
-                    # Try outward postcode lookup (e.g. PE7)
                     res_out = requests.get(f"https://api.postcodes.io/outcodes/{query_clean}", timeout=3)
                     data_out = res_out.json()
                     if res_out.status_code == 200 and data_out.get("result"):
                         r = data_out["result"]
-                        st.session_state.manual_lat = r["latitude"]
-                        st.session_state.manual_lon = r["longitude"]
-                        st.session_state.manual_city = f"Area {query_clean}"
+                        resolved_city = f"Area {query_clean}"
+                        
+                        st.query_params["lat"] = str(r["latitude"])
+                        st.query_params["lon"] = str(r["longitude"])
+                        st.query_params["city"] = resolved_city
                         st.rerun()
                     else:
                         st.error("UK postcode not found. Please enter a valid UK postcode or outward code (e.g. PE7).")
             except Exception:
                 st.error("Search failed. Check connection and try again.")
 
-    if st.session_state.manual_lat is not None:
+    if "lat" in st.query_params:
         col_reset1, col_reset2 = st.columns([2, 1])
         with col_reset1:
-            st.success(f"Active location: **{st.session_state.manual_city}**")
+            st.success(f"Active location: **{city_name}**")
         with col_reset2:
             if st.button("Reset Default", use_container_width=True):
-                st.session_state.manual_lat = None
-                st.session_state.manual_lon = None
-                st.session_state.manual_city = None
+                # Clear query parameters to revert back to default baseline
+                st.query_params.clear()
                 st.rerun()
 
     st.markdown(
