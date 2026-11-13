@@ -1,46 +1,72 @@
-from datetime import datetime, timedelta
+import datetime
 import math
-import re
-from zoneinfo import ZoneInfo
+import pandas as pd
 import requests
 import streamlit as st
 
-# 1. Page Configuration & Branding
-st.set_page_config(
-    page_title="WashDry — Outdoor Drying Index", page_icon="🧺", layout="centered"
-)
+# ==========================================
+# 1. PAGE CONFIGURATION
+# ==========================================
+st.set_page_config(page_title="WashDryPhysics", page_icon="🌤️", layout="wide")
+
+# ==========================================
+# 2. RESPONSIVE HEADER & MOBILE CSS
+# ==========================================
 st.markdown(
     """
     <style>
-    /* Force header columns to span full width and space apart */
-    [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-    }
-    
-    /* Target the right-hand column (logo) and push it flush right */
-    [data-testid="stColumn"]:nth-of-type(2) {
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
-        padding-right: 0px !important;
-    }
-
-    /* Scale logo size nicely for mobile */
-    [data-testid="stColumn"] img {
-        max-width: 55px !important;
-        height: auto !important;
-        margin-right: 0px !important;
+    @media (max-width: 640px) {
+        [data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+        [data-testid="stColumn"] {
+            width: auto !important;
+            flex: 1 !important;
+            min-width: unset !important;
+        }
+        [data-testid="stColumn"]:nth-of-type(2) {
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            padding-right: 0px !important;
+        }
+        [data-testid="stColumn"] img {
+            max-width: 50px !important;
+            height: auto !important;
+            margin-right: 0px !important;
+        }
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
+# ==========================================
+# 3. HEADER LAYOUT (TITLE & LOGO)
+# ==========================================
+col1, col2 = st.columns([4, 1])
+
+with col1:
+    st.subheader("Global Weather")
+
+with col2:
+    st.image("logo.png")
+
+# ==========================================
+# 4. YOUR APP LOGIC & CALCULATIONS GO HERE
+# ==========================================
+# (Insert your weather API calls, vapor pressure deficit formulas, 
+# sliders, metrics, and dataframes below this line)
+
+st.write("---")
+st.info(
+    "Your weather and drying physics calculation modules run in this section."
 )
+
 
 tz = ZoneInfo("Europe/London")
 now = datetime.now(tz)
