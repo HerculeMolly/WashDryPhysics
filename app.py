@@ -213,20 +213,30 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row & Concise Model Notice
-st.markdown(
-    f"""
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
-        <div style="display: flex; align-items: baseline; gap: 2px;">
+# 4. Header Row with Native Columns (Left: Stacked Info, Right: logo.jpg)
+col_head, col_logo = st.columns([5, 1])
+
+with col_head:
+    st.markdown(
+        f"""
+        <div style="display: flex; align-items: baseline; gap: 4px;">
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
             <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
-        <div style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
-    </div>
-    <div style="font-size: 0.66rem; opacity: 0.55; margin-bottom: 4px; font-weight: 500;">Baseline: Global weather model (may differ slightly from Met Office local app)</div>
-""",
-    unsafe_allow_html=True,
-)
+        <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
+        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; white-space: nowrap;">Global weather model (may differ from Met Office app)</div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+with col_logo:
+    try:
+        st.image("logo.jpg", width=44)
+    except Exception:
+        st.markdown(
+            '<div style="border: 2px dashed rgba(128,128,128,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; opacity: 0.6;">Logo</div>',
+            unsafe_allow_html=True,
+        )
 
 # Fabric mode multipliers
 if "Light" in st.session_state.fabric_mode:
@@ -239,7 +249,6 @@ else:
 
 @st.cache_data(ttl=1800)
 def fetch_weather_data(latitude, longitude):
-    # Using universal shortwave_radiation to ensure full compatibility with default ensemble
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
         "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,shortwave_radiation"
