@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import math
+import re
 from zoneinfo import ZoneInfo
 import requests
 import streamlit as st
@@ -22,10 +23,9 @@ if "manual_lon" not in st.session_state:
 if "manual_city" not in st.session_state:
     st.session_state.manual_city = None
 
-# 2. Geolocation (Hardcoded Peterborough Default + Open-Meteo Geocoding Override)
+# 2. Geolocation (Hardcoded Peterborough Default + UK Postcode Lookup)
 @st.cache_data(ttl=3600)
 def get_user_location():
-    # Fixed default for local accuracy (avoids Streamlit server IP mismatch)
     return 52.5785, -0.1285, "Peterborough"
 
 # Resolve active coordinates
@@ -34,7 +34,7 @@ if st.session_state.manual_lat is not None:
 else:
     lat, lon, city_name = get_user_location()
 
-# 3. Optimized Screen Layout & CSS (Compressed vertical footprints to fit shorter screens)
+# 3. Optimized Screen Layout & CSS (Compressed vertical footprints)
 st.markdown(
     f"""
     <style>
@@ -153,16 +153,6 @@ st.markdown(
         line-height: 1.1;
         white-space: nowrap;
     }}
-    .physics-row {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.76rem;
-        margin-top: 2px;
-        padding-top: 2px;
-        border-top: 1px dashed rgba(128, 128, 128, 0.2);
-        opacity: 0.9;
-    }}
     .footer-container {{
         display: flex;
         justify-content: space-between;
@@ -232,13 +222,10 @@ st.markdown(
 # Fabric mode multipliers
 if "Light" in st.session_state.fabric_mode:
     fabric_multiplier = 1.3
-    fabric_label_tag = "Light Load"
 elif "Heavy" in st.session_state.fabric_mode:
     fabric_multiplier = 0.75
-    fabric_label_tag = "Heavy Load"
 else:
     fabric_multiplier = 1.0
-    fabric_label_tag = "Normal Wash"
 
 
 @st.cache_data(ttl=1800)
@@ -278,7 +265,7 @@ wind_speeds = hourly["wind_speed_10m"]
 solar_rads = hourly.get("direct_radiation", [0] * len(times))
 
 
-# Tetens-Aligned Scoring Engine with Thermal & Moisture Guardrails
+# Tetens-Aligned Scoring Engine
 def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum, high_temp):
     if evap > 0.45 and high_temp >= 16:
         score = 5
@@ -291,13 +278,11 @@ def get_hybrid_drying_score(evap, rain_prob, peak_mm, hum, high_temp):
     else:
         score = 1
 
-    # Cold Temperature Caps
     if high_temp < 12:
         score = min(score, 3)
     if high_temp < 6:
         score = min(score, 2)
 
-    # Precipitation & Saturation Guardrails
     if rain_prob > 35 or peak_mm > 0.3:
         score = min(score, 2)
     if hum > 85:
@@ -357,7 +342,6 @@ for target_dt, block_label, block_hours in target_blocks:
     max_rain_prob = max(block_rains)
     max_hourly_mm = round(max(block_mm), 1) if block_mm else 0.0
     
-    # Power-Law Wind Adjustment (Suburban roughness alpha = 0.25 -> (2/10)^0.25 ≈ 0.6687)
     avg_wind_10m = sum(block_winds) / len(block_winds)
     avg_wind = round(avg_wind_10m * ((2.0 / 10.0) ** 0.25), 1)
     
@@ -367,21 +351,11 @@ for target_dt, block_label, block_hours in target_blocks:
     eval_hum = avg_hum
     eval_rain = max_rain_prob
 
-    # Tetens formula for Vapor Pressure Deficit (VPD)
     es = 0.61078 * math.exp((17.27 * eval_temp) / (eval_temp + 237.3))
     ea = es * (eval_hum / 100.0)
     vpd = max(0.0, es - ea)
     
     evap_rate = ((0.05 + 0.08 * avg_wind) * vpd + (0.0002 * avg_solar)) * fabric_multiplier
-
-    if evap_rate > 0.4:
-        est_hours = round(max(1.5, 3.5 - evap_rate * 2), 1)
-        est_time_str = f"~{est_hours} hrs (Fast)"
-    elif evap_rate > 0.2:
-        est_hours = round(max(3.0, 6.0 - evap_rate * 3), 1)
-        est_time_str = f"~{est_hours} hrs (Steady)"
-    else:
-        est_time_str = "6h+ (Slow / Indoor)"
 
     dt_slot = target_dt
     end_dt = dt_slot + timedelta(hours=4)
@@ -398,13 +372,11 @@ for target_dt, block_label, block_hours in target_blocks:
 
     if is_expired:
         badge_html = "<div class='rating-badge rating-expired'>EXPIRED</div>"
-        physics_html = ""
     else:
         score = get_hybrid_drying_score(evap_rate, eval_rain, max_hourly_mm, eval_hum, high_temp)
         num_str, label_text = score_labels[score]
         badge_class = "rating-good" if score >= 3 else "rating-bad"
         badge_html = f'<div class="rating-badge {badge_class}"><span class="rating-score">{num_str}</span> <span class="rating-text">{label_text}</span></div>'
-        physics_html = f'<div class="physics-row"><span>⚡ {fabric_label_tag}: <strong>{est_time_str}</strong></span><span style="opacity: 0.7;">VPD: {vpd:.2f} kPa</span></div>'
 
     rain_color = (
         "opacity: 0.5;"
@@ -418,7 +390,7 @@ for target_dt, block_label, block_hours in target_blocks:
         rain_val_html = f"{max_rain_prob}%"
 
     st.markdown(
-        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 2px 0 3px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div>{physics_html}</div>""",
+        f"""<div class="{card_class}"><div style="display: flex; justify-content: space-between; align-items: center;"><div class="slot-title" style="font-size: 0.8rem; font-weight: 800; letter-spacing: -0.2px;">{day_label} &nbsp;<span style="opacity: 0.4; font-weight: 400;">|</span>&nbsp; {block_label}</div><div>{badge_html}</div></div><hr style="margin: 2px 0 3px 0; border: none; border-top: 1px solid rgba(128,128,128,0.2);"><div class="metrics-row"><div class="metric-box"><div class="metric-label">Temp</div><div class="metric-val">{high_temp}°C<br>{low_temp}°C</div></div><div class="metric-box"><div class="metric-label">Humidity</div><div class="metric-val">{avg_hum}%</div></div><div class="metric-box"><div class="metric-label">Rain</div><div class="metric-val">{rain_val_html}</div></div><div class="metric-box"><div class="metric-label">Wind</div><div class="metric-val">{avg_wind} mph</div></div></div></div>""",
         unsafe_allow_html=True,
     )
 
@@ -431,61 +403,61 @@ st.radio(
     label_visibility="collapsed",
 )
 
-# 6. Integrated Microclimate & Location Override Expander
+# 6. Integrated Microclimate & UK Postcode Form Expander
 with st.expander("🌤️ Drying Guide & Location Settings"):
-    st.markdown("### 📍 Manual Location Override")
-    loc_query = st.text_input("Search town or city", placeholder="e.g. Whittlesey, Peterborough", key="loc_search_input")
+    st.markdown("### 📍 UK Postcode Search")
     
-    col_a, col_b = st.columns(2)
-    with col_a:
-        if st.button("Set Location", use_container_width=True):
-            if loc_query:
-                try:
-                    url = f"https://geocoding-api.open-meteo.com/v1/search?name={loc_query}&count=1"
-                    res = requests.get(url, timeout=3)
-                    data = res.json()
-                    if "results" in data and len(data["results"]) > 0:
-                        r = data["results"][0]
-                        country = r.get("country", "")
-                        resolved_name = f"{r.get('name', loc_query)}, {country}" if country else r.get('name', loc_query)
-                        
+    with st.form(key="postcode_form"):
+        postcode_query = st.text_input("Enter UK Postcode or Outward Code", placeholder="e.g. PE7 or PE7 1AA")
+        submitted = st.form_submit_button("Set Location", use_container_width=True)
+        
+        if submitted and postcode_query:
+            query_clean = postcode_query.strip().upper()
+            try:
+                # Try full postcode lookup first
+                res = requests.get(f"https://api.postcodes.io/postcodes/{query_clean}", timeout=3)
+                data = res.json()
+                
+                if res.status_code == 200 and data.get("result"):
+                    r = data["result"]
+                    district = r.get("admin_district", query_clean)
+                    st.session_state.manual_lat = r["latitude"]
+                    st.session_state.manual_lon = r["longitude"]
+                    st.session_state.manual_city = f"{district} ({query_clean})"
+                    st.rerun()
+                else:
+                    # Try outward postcode lookup (e.g. PE7)
+                    res_out = requests.get(f"https://api.postcodes.io/outcodes/{query_clean}", timeout=3)
+                    data_out = res_out.json()
+                    if res_out.status_code == 200 and data_out.get("result"):
+                        r = data_out["result"]
                         st.session_state.manual_lat = r["latitude"]
                         st.session_state.manual_lon = r["longitude"]
-                        st.session_state.manual_city = resolved_name
+                        st.session_state.manual_city = f"Area {query_clean}"
                         st.rerun()
                     else:
-                        st.error("Location not found.")
-                except Exception:
-                    st.error("Search failed. Try again.")
-    with col_b:
-        if st.session_state.manual_lat is not None:
-            if st.button("Reset to Default", use_container_width=True):
+                        st.error("UK postcode not found. Please enter a valid UK postcode or outward code (e.g. PE7).")
+            except Exception:
+                st.error("Search failed. Check connection and try again.")
+
+    if st.session_state.manual_lat is not None:
+        col_reset1, col_reset2 = st.columns([2, 1])
+        with col_reset1:
+            st.success(f"Active location: **{st.session_state.manual_city}**")
+        with col_reset2:
+            if st.button("Reset Default", use_container_width=True):
                 st.session_state.manual_lat = None
                 st.session_state.manual_lon = None
                 st.session_state.manual_city = None
                 st.rerun()
 
-    if st.session_state.manual_lat is not None:
-        st.success(f"Active location: **{st.session_state.manual_city}**")
-
     st.markdown(
         """
 ---
-Your app calculates a reliable regional baseline, but your backyard layout and what you're hanging out to dry dictate the real-world timeline.
-
-### 1. Garden Layout (The 20–30% Swing)
-*Physics view: Boundary-layer decoupling & thermal mass radiation.*
-* **The Slower Yard (Shelter Trap):** Fences, walls, and dense hedges block the wind, creating a "dead air" bubble where humidity gets trapped. If your yard is heavily walled-in, expect drying times to run slower than the app suggests.
-* **The Faster Yard (Sun-Trap Bonus):** Hard landscaping (patios, brick walls) acts as a solar radiator, re-radiating warmth and dropping local humidity to accelerate drying.
-
-### 2. Fabric Density & Load Weight
-*Physics view: Internal moisture diffusion & falling-rate drying phases.*
-* **Light Loads (Synthetics / Shirts):** Water sits mostly on surface fibers and evaporates rapidly.
-* **Normal Loads (Mixed Everyday Wash):** Standard cotton tees and garments take moderate time.
-* **Heavy Loads (Jeans, Hoodies & Towels):** Dense fibers trap moisture deep inside, requiring significantly more thermal energy and time. Always mentally add extra time for thick cottons!
-
----
-**Quick Rule of Thumb:** Trust "Bad" and "Perfect" forecasts implicitly (rain and high humidity beat everything). For "Steady" or "Fair" days, mentally adjust your expectations: round up for heavy towels in a shady yard, or round down for light sportswear in an open sun-trap!
+### Garden Layout & Fabric Tips
+* **Sheltered Yards:** Walls and fences trap stagnant air; drying may take longer than indicated.
+* **Sun-Traps:** Patios and brick work radiate warmth, accelerating evaporation.
+* **Heavy Loads:** Towels and jeans hold deep internal moisture requiring extra time.
         """
     )
 
