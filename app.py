@@ -1,6 +1,6 @@
-import datetime
-import math
+from datetime import datetime
 from zoneinfo import ZoneInfo
+import math
 import pandas as pd
 import requests
 import streamlit as st
