@@ -52,19 +52,19 @@ st.markdown(
         margin: 0 auto;
     }}
     
-    /* Force header and horizontal blocks to stay side-by-side and pin logo flush right */
-    [data-testid="stHorizontalBlock"] {{
+    /* Force ONLY the header horizontal block to stay side-by-side and pin logo flush right */
+    [data-testid="stHorizontalBlock"]:first-of-type {{
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
         width: 100% !important;
     }}
-    [data-testid="stColumn"]:nth-of-type(1) {{
+    [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:nth-of-type(1) {{
         flex: 5 !important;
         width: auto !important;
     }}
-    [data-testid="stColumn"]:nth-of-type(2) {{
+    [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"]:nth-of-type(2) {{
         flex: 1 !important;
         width: auto !important;
         display: flex !important;
@@ -72,10 +72,11 @@ st.markdown(
         align-items: center !important;
         padding-right: 0px !important;
     }}
-    [data-testid="stColumn"] img {{
+    [data-testid="stHorizontalBlock"]:first-of-type > [data-testid="stColumn"] img {{
         max-width: 44px !important;
         height: auto !important;
         margin-right: 0px !important;
+        float: right !important;
     }}
 
     .stExpander {{
@@ -240,7 +241,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row with Native Columns (Left: Stacked Info, Right: logo.jpg)
+# 4. Header Row with Native Columns (Left: Stacked Info, Right: logo.png)
 col_head, col_logo = st.columns([5, 1])
 
 with col_head:
