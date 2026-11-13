@@ -213,10 +213,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Embedded Base64 Logo String (Paste your Base64 encoded image string here)
-logo_base64 = "PASTE_YOUR_BASE64_STRING_HERE"
+# 4. Header Row with Stacked Left Info & Top-Right Logo Placeholder
+# Note: Replace 'LOGO_URL_OR_PATH' with your hosted image URL or local asset filename
+logo_src = "LOGO_URL_OR_PATH" 
 
-# 4. Header Row with Stacked Info & Embedded Top-Right Logo
 st.markdown(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
@@ -229,7 +229,7 @@ st.markdown(
             <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; white-space: nowrap;">Global weather model (may differ from Met Office app)</div>
         </div>
         <div>
-            <img src="data:image/jpeg;base64,{logo_base64}" style="height: 38px; width: 38px; border-radius: 50%; object-fit: cover;" alt="Logo">
+            <img src="{logo_src}" style="height: 38px; width: 38px; border-radius: 50%; object-fit: cover;" alt="Logo">
         </div>
     </div>
 """,
