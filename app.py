@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import math
 import re
+import time
 from zoneinfo import ZoneInfo
 import requests
 import streamlit as st
@@ -16,6 +17,12 @@ update_str = now.strftime("updated %H%M %d-%b-%y").lower()
 
 if "fabric_mode" not in st.session_state:
     st.session_state.fabric_mode = "Normal"
+
+# Handle instant cache-clear refresh trigger from header button
+if "refresh" in st.query_params:
+    st.cache_data.clear()
+    del st.query_params["refresh"]
+    st.rerun()
 
 # 2. Geolocation & Persistent State (URL Query + Session State fallback)
 if "lat" in st.query_params and "lon" in st.query_params:
@@ -139,6 +146,12 @@ st.markdown(
         opacity: 0.5;
         border: 1px solid rgba(128, 128, 128, 0.2) !important;
     }}
+    .stale-card {{
+        opacity: 0.45 !important;
+        filter: grayscale(30%);
+        pointer-events: none;
+        border: 1px dashed rgba(128, 128, 128, 0.4) !important;
+    }}
     .rating-badge {{
         font-size: 0.72rem;
         font-weight: 600;
@@ -244,7 +257,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 4. Header Row with Native Columns (Left: Stacked Info, Right: logo.png)
+# 4. Header Row with Native Columns (Left: Stacked Info with Refresh link, Right: logo.png)
 col_head, col_logo = st.columns([5, 1])
 
 with col_head:
@@ -254,8 +267,11 @@ with col_head:
             <h1 style="margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.1;">WashDry</h1>
             <span style="font-size: 0.74rem; opacity: 0.7; font-weight: 600; letter-spacing: -0.2px;">{update_str}</span>
         </div>
-        <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-top: 1px;">📍 {city_name}</div>
-        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; line-height: 1.2;">Global weather model (may differ from Met Office local app)</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1px;">
+            <div style="font-size: 0.78rem; font-weight: 600; opacity: 0.8;">📍 {city_name}</div>
+            <a href="?refresh=1" target="_self" style="font-size: 0.7rem; font-weight: 700; text-decoration: none; background: rgba(128,128,128,0.12); padding: 1px 6px; border-radius: 4px; color: inherit; opacity: 0.85;">🔄 Refresh</a>
+        </div>
+        <div style="font-size: 0.64rem; opacity: 0.55; font-weight: 500; line-height: 1.2; margin-top: 1px;">Global weather model (may differ from Met Office local app)</div>
     """,
         unsafe_allow_html=True,
     )
@@ -279,38 +295,112 @@ else:
 
 
 @st.cache_data(ttl=1800)
-def fetch_weather_data(latitude, longitude):
+def fetch_open_meteo(latitude, longitude):
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
         "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,shortwave_radiation"
         "&timezone=Europe/London&forecast_days=2"
     )
     headers = {"User-Agent": "WashDryPhysicsApp/1.0"}
-    try:
-        response = requests.get(url, headers=headers, timeout=8)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        # Return None to trigger graceful handling in the main flow
-        return None
+    response = requests.get(url, headers=headers, timeout=6)
+    response.raise_for_status()
+    return response.json()
+
+
+@st.cache_data(ttl=1800)
+def fetch_met_norway(latitude, longitude):
+    url = f"https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={latitude}&lon={longitude}"
+    headers = {"User-Agent": "WashDryApp/1.0 contact@herculemolly.co.uk"}
+    response = requests.get(url, headers=headers, timeout=6)
+    response.raise_for_status()
+    j = response.json()
+    timeseries = j["properties"]["timeseries"]
+    
+    times = []
+    temps = []
+    humidities = []
+    precip_probs = []
+    precips = []
+    wind_speeds = []
+    solar_rads = []
+    
+    for entry in timeseries:
+        t_str = entry["time"].replace("Z", "")
+        if len(t_str) > 16:
+            t_str = t_str[:16]
+        details = entry["data"]["instant"]["details"]
+        next_1h = entry["data"].get("next_1_hours", {}).get("details", {})
+        precip_amt = next_1h.get("precipitation_amount", 0.0)
+        
+        times.append(t_str)
+        temps.append(details.get("air_temperature", 15.0))
+        humidities.append(details.get("relative_humidity", 70.0))
+        precip_probs.append(100 if precip_amt > 0.1 else 10)
+        precips.append(precip_amt)
+        # Convert Met Norway m/s to km/h to align with Open-Meteo scaling scale
+        w_ms = details.get("wind_speed", 3.0)
+        wind_speeds.append(w_ms * 3.6)
+        solar_rads.append(100.0)
+        
+    return {
+        "hourly": {
+            "time": times,
+            "temperature_2m": temps,
+            "relative_humidity_2m": humidities,
+            "precipitation_probability": precip_probs,
+            "precipitation": precips,
+            "wind_speed_10m": wind_speeds,
+            "shortwave_radiation": solar_rads
+        }
+    }
 
 
 loading_placeholder = st.empty()
-loading_placeholder.markdown(
-    '<div class="instant-loader">Fetching latest weather data...</div>',
-    unsafe_allow_html=True,
-)
+data = None
+max_retries = 3
 
-data = fetch_weather_data(lat, lon)
+# Tier 1: Open-Meteo with 3-attempt retry & visual countdown
+for attempt in range(1, max_retries + 1):
+    try:
+        loading_placeholder.markdown(
+            f'<div class="instant-loader">Fetching weather data (Attempt {attempt}/{max_retries})...</div>',
+            unsafe_allow_html=True,
+        )
+        data = fetch_open_meteo(lat, lon)
+        break
+    except requests.exceptions.RequestException:
+        if attempt < max_retries:
+            for sec in range(2, 0, -1):
+                loading_placeholder.markdown(
+                    f'<div class="instant-loader">Primary service busy. Retrying in {sec}s (Attempt {attempt + 1}/{max_retries})...</div>',
+                    unsafe_allow_html=True,
+                )
+                time.sleep(1)
+
+# Tier 2: Automatic Fallback to Met Norway if Open-Meteo completely fails
+if not data or "hourly" not in data:
+    try:
+        loading_placeholder.markdown(
+            '<div class="instant-loader">Switching to backup weather service (Met Norway)...</div>',
+            unsafe_allow_html=True,
+        )
+        data = fetch_met_norway(lat, lon)
+    except Exception:
+        data = None
+
 loading_placeholder.empty()
 
+is_stale = False
 if not data or "hourly" not in data:
-    st.warning("⚠️ Live weather service is temporarily busy. Displaying estimated baseline conditions.")
-    # Fallback dummy hourly data structure to prevent complete app crash on API dropouts
-    dummy_times = []
+    is_stale = True
+    st.warning("⚠️ Live weather services are temporarily busy. Displaying estimated baseline conditions.")
+    
+    if st.button("🔄 Retry Weather Fetch", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
     base_time = datetime.now(tz).replace(minute=0, second=0, microsecond=0)
-    for i in range(48):
-        dummy_times.append((base_time + timedelta(hours=i)).strftime("%Y-%m-%dT%H:00"))
+    dummy_times = [(base_time + timedelta(hours=i)).strftime("%Y-%m-%dT%H:00") for i in range(48)]
     
     hourly = {
         "time": dummy_times,
@@ -438,12 +528,16 @@ for target_dt, block_label, block_hours in target_blocks:
 
     if is_expired:
         card_class = "slot-card expired-card"
+    elif is_stale:
+        card_class = "slot-card stale-card"
     else:
         weight_class = "today-card" if day_label == "TODAY" else "tomorrow-card"
         card_class = f"slot-card {weight_class}"
 
     if is_expired:
         badge_html = "<div class='rating-badge rating-expired'>EXPIRED</div>"
+    elif is_stale:
+        badge_html = "<div class='rating-badge rating-expired'>ESTIMATE</div>"
     else:
         score = get_hybrid_drying_score(evap_rate, eval_rain, max_hourly_mm, eval_hum, high_temp)
         num_str, label_text = score_labels[score]
