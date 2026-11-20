@@ -24,12 +24,25 @@ if "refresh" in st.query_params:
     del st.query_params["refresh"]
     st.rerun()
 
-# 2. Geolocation & Persistent State (URL Query + Session State fallback)
+# 2. Geolocation & Persistent State (URL Query + IP Geolocation / Session State fallback)
 if "lat" in st.query_params and "lon" in st.query_params:
     try:
         st.session_state.lat = float(st.query_params["lat"])
         st.session_state.lon = float(st.query_params["lon"])
         st.session_state.city = st.query_params.get("city", "Custom Location")
+    except Exception:
+        pass
+
+if "lat" not in st.session_state:
+    # Attempt silent IP geolocation on initial load for global support
+    try:
+        res = requests.get("https://ipapi.co/json/", timeout=3)
+        if res.status_code == 200:
+            data = res.json()
+            if "latitude" in data and "longitude" in data:
+                st.session_state.lat = float(data["latitude"])
+                st.session_state.lon = float(data["longitude"])
+                st.session_state.city = data.get("city", data.get("region", "Current Location"))
     except Exception:
         pass
 
@@ -299,7 +312,7 @@ def fetch_open_meteo(latitude, longitude):
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}"
         "&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,wind_speed_10m,shortwave_radiation"
-        "&timezone=Europe/London&forecast_days=2"
+        "&timezone=auto&forecast_days=2"
     )
     headers = {"User-Agent": "WashDryPhysicsApp/1.0"}
     response = requests.get(url, headers=headers, timeout=6)
@@ -337,7 +350,6 @@ def fetch_met_norway(latitude, longitude):
         humidities.append(details.get("relative_humidity", 70.0))
         precip_probs.append(100 if precip_amt > 0.1 else 10)
         precips.append(precip_amt)
-        # Convert Met Norway m/s to km/h to align with Open-Meteo scaling scale
         w_ms = details.get("wind_speed", 3.0)
         wind_speeds.append(w_ms * 3.6)
         solar_rads.append(100.0)
@@ -569,52 +581,96 @@ st.radio(
     label_visibility="collapsed",
 )
 
-# 6. Integrated Microclimate & UK Postcode Form Expander
+# 6. Integrated Microclimate & Global / UK Postcode Form Expander
 with st.expander("🌤️ Drying Guide & Location Settings"):
-    st.markdown("### 📍 UK Postcode Search")
+    st.markdown("### 📍 Location Search (UK Postcode or Global City)")
     
     with st.form(key="postcode_form"):
-        postcode_query = st.text_input("Enter UK Postcode or Outward Code", placeholder="e.g. PE7 or PE7 1AA")
+        location_query = st.text_input("Enter UK Postcode, City, or Lat/Lon", placeholder="e.g. PE7 1AA, Paris, or 52.57,-0.12")
         submitted = st.form_submit_button("Set Location", use_container_width=True)
         
-        if submitted and postcode_query:
-            query_clean = postcode_query.strip().upper()
-            try:
-                res = requests.get(f"https://api.postcodes.io/postcodes/{query_clean}", timeout=3)
-                data = res.json()
-                
-                if res.status_code == 200 and data.get("result"):
-                    r = data["result"]
-                    district = r.get("admin_district", query_clean)
-                    resolved_city = f"{district} ({query_clean})"
-                    
-                    st.session_state.lat = r["latitude"]
-                    st.session_state.lon = r["longitude"]
-                    st.session_state.city = resolved_city
-                    
-                    st.query_params["lat"] = str(r["latitude"])
-                    st.query_params["lon"] = str(r["longitude"])
-                    st.query_params["city"] = resolved_city
+        if submitted and location_query:
+            query_clean = location_query.strip()
+            resolved = False
+            
+            # 1. Check if raw coordinates (e.g. "52.57, -0.12")
+            if "," in query_clean:
+                try:
+                    parts = query_clean.split(",")
+                    lat_val = float(parts[0].strip())
+                    lon_val = float(parts[1].strip())
+                    st.session_state.lat = lat_val
+                    st.session_state.lon = lon_val
+                    st.session_state.city = f"Coordinates ({lat_val}, {lon_val})"
+                    st.query_params["lat"] = str(lat_val)
+                    st.query_params["lon"] = str(lon_val)
+                    st.query_params["city"] = st.session_state.city
+                    resolved = True
                     st.rerun()
-                else:
-                    res_out = requests.get(f"https://api.postcodes.io/outcodes/{query_clean}", timeout=3)
-                    data_out = res_out.json()
-                    if res_out.status_code == 200 and data_out.get("result"):
-                        r = data_out["result"]
-                        resolved_city = f"Area {query_clean}"
-                        
+                except ValueError:
+                    pass
+
+            # 2. Check if UK Postcode format via postcodes.io
+            if not resolved:
+                try:
+                    query_upper = query_clean.upper()
+                    res = requests.get(f"https://api.postcodes.io/postcodes/{query_upper}", timeout=3)
+                    if res.status_code == 200 and res.json().get("result"):
+                        r = res.json()["result"]
+                        district = r.get("admin_district", query_upper)
+                        resolved_city = f"{district} ({query_upper})"
                         st.session_state.lat = r["latitude"]
                         st.session_state.lon = r["longitude"]
                         st.session_state.city = resolved_city
-                        
                         st.query_params["lat"] = str(r["latitude"])
                         st.query_params["lon"] = str(r["longitude"])
                         st.query_params["city"] = resolved_city
+                        resolved = True
                         st.rerun()
                     else:
-                        st.error("UK postcode not found. Please enter a valid UK postcode or outward code (e.g. PE7).")
-            except Exception:
-                st.error("Search failed. Check connection and try again.")
+                        res_out = requests.get(f"https://api.postcodes.io/outcodes/{query_upper}", timeout=3)
+                        if res_out.status_code == 200 and res_out.json().get("result"):
+                            r = res_out.json()["result"]
+                            resolved_city = f"Area {query_upper}"
+                            st.session_state.lat = r["latitude"]
+                            st.session_state.lon = r["longitude"]
+                            st.session_state.city = resolved_city
+                            st.query_params["lat"] = str(r["latitude"])
+                            st.query_params["lon"] = str(r["longitude"])
+                            st.query_params["city"] = resolved_city
+                            resolved = True
+                            st.rerun()
+                except Exception:
+                    pass
+
+            # 3. Fallback to Open-Meteo Geocoding API for global cities/towns
+            if not resolved:
+                try:
+                    geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={query_clean}&count=1&language=en&format=json"
+                    geo_res = requests.get(geo_url, timeout=3)
+                    if geo_res.status_code == 200:
+                        geo_data = geo_res.json()
+                        if "results" in geo_data and len(geo_data["results"]) > 0:
+                            loc = geo_data["results"][0]
+                            lat_val = loc["latitude"]
+                            lon_val = loc["longitude"]
+                            name = loc.get("name", query_clean)
+                            admin = loc.get("admin1", "")
+                            country = loc.get("country", "")
+                            resolved_city = f"{name}, {admin}, {country}".strip(", ")
+                            st.session_state.lat = lat_val
+                            st.session_state.lon = lon_val
+                            st.session_state.city = resolved_city
+                            st.query_params["lat"] = str(lat_val)
+                            st.query_params["lon"] = str(lon_val)
+                            st.query_params["city"] = resolved_city
+                            resolved = True
+                            st.rerun()
+                except Exception:
+                    pass
+
+            if not resolved:
+                st.error("Location not found. Please enter a valid UK postcode, global city, or coordinates.")
 
     if st.session_state.city != "Peterborough":
         col_reset1, col_reset2 = st.columns([2, 1])
